@@ -1,0 +1,1 @@
+Après exécution, A=7, B=12 et C=5.

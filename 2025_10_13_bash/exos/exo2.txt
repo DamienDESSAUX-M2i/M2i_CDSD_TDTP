@@ -1,0 +1,6 @@
+# Question 1
+# La commande cp toto titi duplique le fichier toto et nomme le fichier dupliqué titi.
+# La commande mv toto titi renomme le fichier toto en titi.
+
+# Question 2
+# Pour copier les fichiers titi1 et toto4 dans tmp/ on peut utiliser la commande : cp titi1 toto4 /tmp/

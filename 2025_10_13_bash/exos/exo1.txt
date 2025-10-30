@@ -1,0 +1,21 @@
+1. La documentation du manuel est structuré de la manière suivante :
+NAME -> nom de la commande
+DESCRIPTION -> description de la commande
+OPTIONS -> les options disponibles pour la commande
+HISTORY -> histoire de la commande
+SEE ALSO -> commandes ayant un rapport avec la commande étudiée
+REPORTING BUGS -> Comment reporter un bug
+AVAILABILITY -> Localisation de la commande
+ 
+2. Pour accéder à la page manuel de write on utilise la commante 'man write'
+ 
+3. Pour la commande ls je peux être amené à utiliser les options :
+-a -> afficher les fichier cachés
+-l -> information sur un / des fichiers
+-C -> affiche les entrées en colonnes
+-d -> liste des dossiers sans leur contenu
+-R -> affichage récursif
+-S -> trier par taille
+-t -> trier par taille
+-X -> trie alphabétique
+--help -> aide sur la commande

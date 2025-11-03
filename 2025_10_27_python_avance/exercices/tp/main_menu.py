@@ -1,5 +1,5 @@
-from menu.menu import Menu
-from menu.item_menu import ItemMenu
+from menu_console.menu import Menu
+from menu_console.item_menu import ItemMenu
 
 from livre import Livre
 from magazine import Magazine

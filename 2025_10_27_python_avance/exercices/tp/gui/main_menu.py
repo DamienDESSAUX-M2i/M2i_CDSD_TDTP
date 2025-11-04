@@ -3,14 +3,16 @@ from menu_console.item_menu import ItemMenu
 
 from livre import Livre
 from magazine import Magazine
-from menu_livre import MenuLivre
-from menu_magazine import MenuMagazine
+
+from gui.menu_livre import MenuLivre
+from gui.menu_magazine import MenuMagazine
 
 
 class MainMenu(Menu):
     def __init__(self, documents: list[Livre|Magazine]):
         super().__init__()
         self.menu_name = "Main Menu"
+        self.menu_description = "Quel type de document souhaitez-vous consulter ?"
         menu_livre: MenuLivre = MenuLivre(documents=documents, parent=self)
         item_menu_livre: ItemMenu = ItemMenu(signal="1", action=menu_livre.show, msg="Livre")
         self.add_item_menu(item_menu=item_menu_livre)

@@ -10,6 +10,7 @@ class MenuMagazine(Menu):
     def __init__(self, documents: list[Livre|Magazine], parent: Menu):
         super().__init__()
         self.menu_name = "Menu Magazine"
+        self.menu_description = "Que souhaitez-vous faire ?"
         actions = Actions(documents)
         item_menu_consulter: ItemMenu = ItemMenu(signal="1", action=actions.consulter_document, msg="Consulter")
         self.add_item_menu(item_menu=item_menu_consulter)

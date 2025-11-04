@@ -1,3 +1,6 @@
+from functools import partialmethod
+from typing import Callable
+
 from menu_console.item_menu import ItemMenu
 from menu_console.exceptions import SignalException
 
@@ -28,7 +31,7 @@ class Menu:
         return self._menu_description
     
     @menu_description.setter
-    def menu_name(self, description: str) -> None:
+    def menu_description(self, description: str) -> None:
         if type(description) is not str:
             raise TypeError("'menu_description' must be a sting.")
         self._menu_description = description
@@ -57,16 +60,42 @@ class Menu:
                 return ItemMenu
         return None
 
-    def pop_item_menu(self, signal: str) -> ItemMenu:
-        item_menu = self.find_item_menu(signal=signal)
-        if item_menu is None:
-            raise SignalException(f"No ItemMenu has the signal {signal}.")
-        item_menu_pop = self._items_menu.pop(self._items_menu.index(item_menu))
+    def remove_item_menu(self, item_menu: ItemMenu) -> None:
+        if not isinstance(item_menu, ItemMenu):
+            raise TypeError("'item_menu' must be an instance of ItemMenu.")
+        if item_menu not in self._items_menu:
+            raise ValueError(f"{item_menu = } is not listed among the menu items.")
+        self._items_menu.remove(item_menu)
         self.compute_msg_menu()
-        return item_menu_pop
 
-    def move_item_menu(self, item_menu: ItemMenu, step: int):
-        raise NotImplementedError
+    def _move_item_menu_one_step(self, item_menu: ItemMenu, direction: str) -> None:
+        if not isinstance(item_menu, ItemMenu):
+            raise TypeError("'item_menu' must be an instance of ItemMenu.")
+        if item_menu not in self._items_menu:
+            raise ValueError(f"{item_menu = } is not listed among the menu items.")
+        index_item_menu: int = self._items_menu.index(item_menu)
+        match direction:
+            case "up":
+                if index_item_menu > 0:
+                    self._items_menu.insert(index_item_menu - 1, self._items_menu.pop(index_item_menu))
+            case "down":
+                if index_item_menu < len(self._items_menu) - 1:
+                    self._items_menu.insert(index_item_menu + 1, self._items_menu.pop(index_item_menu))
+            case _:
+                raise ValueError("'direction' must be 'up' or 'down'.")
+        self.compute_msg_menu()
+
+    move_up_item_menu = partialmethod(_move_item_menu_one_step, direction = "up")
+    move_down_item_menu = partialmethod(_move_item_menu_one_step, direction = "down")
+
+    def move_item_menu(self, item_menu: ItemMenu, step: int) -> None:
+        if not isinstance(item_menu, ItemMenu):
+            raise TypeError("'item_menu' must be an instance of ItemMenu.")
+        if type(step) is not int:
+            raise TypeError("'step' must be an integer.")
+        move: Callable = self.move_up_item_menu if step >= 0 else self.move_down_item_menu
+        for k in range(abs(step)):
+            move(item_menu=item_menu)
 
     def compute_msg_menu(self) -> str:
         msgs_menu: list[str] = [f"=== {self._menu_name} ==="]

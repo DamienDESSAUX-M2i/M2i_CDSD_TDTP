@@ -1,7 +1,7 @@
 from livre import Livre
 from magazine import Magazine
 from genre import Genre
-from main_menu import MainMenu
+from gui.main_menu import MainMenu
 
 
 def main() -> None:

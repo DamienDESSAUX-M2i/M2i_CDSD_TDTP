@@ -19,7 +19,7 @@ class Menu:
     
     @menu_name.setter
     def menu_name(self, name: str) -> None:
-        if name is not type(str):
+        if type(name) is not str:
             raise TypeError("'menu_name' must be a sting.")
         self._menu_name = name
 
@@ -29,12 +29,12 @@ class Menu:
     
     @menu_description.setter
     def menu_name(self, description: str) -> None:
-        if description is not type(str):
+        if type(description) is not str:
             raise TypeError("'menu_description' must be a sting.")
         self._menu_description = description
 
     def signal_exists(self, signal: str) -> bool:
-        if signal is not type(str):
+        if type(signal) is not str:
             raise TypeError("'signal' must be a sting.")
         for item_menu in self._items_menu:
             if item_menu.signal == signal:
@@ -50,7 +50,7 @@ class Menu:
         self.compute_msg_menu()
 
     def find_item_menu(self, signal: str) -> ItemMenu|None:
-        if signal is not type(str):
+        if type(signal) is not str:
             raise TypeError("'signal' must be a sting.")
         for item_menu in self._items_menu:
             if item_menu.signal == signal:
@@ -66,7 +66,7 @@ class Menu:
         return item_menu_pop
 
     def move_item_menu(self, item_menu: ItemMenu, step: int):
-        pass
+        raise NotImplementedError
 
     def compute_msg_menu(self) -> str:
         msgs_menu: list[str] = [f"=== {self._menu_name} ==="]

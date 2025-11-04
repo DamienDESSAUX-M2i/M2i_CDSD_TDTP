@@ -1,7 +1,3 @@
-from pathlib import Path
-import csv
-
-
 class LoginException(Exception):
     def __init__(self, msg: str):
         self.msg = msg

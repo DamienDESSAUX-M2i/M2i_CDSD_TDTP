@@ -1,9 +1,12 @@
+name: exo12
+
 services:
   db:
     image: mysql
     container_name: bd
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_HOST: admin
+      MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: employee
     restart: always
     volumes:
@@ -46,7 +49,7 @@ services:
     container_name: front
     restart: always
     depends_on:
-      - db
+      - back
     ports:
       - 8081:3000
     networks:

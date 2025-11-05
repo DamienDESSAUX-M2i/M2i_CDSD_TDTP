@@ -3,6 +3,7 @@ services:
     image: postgres
     container_name: local_pgdb
     environment:
+      POSTGRES_USER: root
       POSTGRES_PASSWORD: root
       POSTGRES_DB: default
     ports:
@@ -23,12 +24,13 @@ services:
     ports:
       - 8080:80
     volumes:
-      - local_pgdata:/var/lib/pgadmin
+      - local_pgadmin:/var/lib/pgadmin
     networks:
       - db_network
 
 volumes:
   local_pgdata:
+  local_pgadmin:
 
 networks:
   db_network:

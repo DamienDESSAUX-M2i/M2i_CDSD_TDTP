@@ -1,0 +1,63 @@
+services:
+  # Déclaration des services
+  # 1 service = 1 conteneur
+  # Tous les conteneurs partagent le même network
+
+  # Service basé sur l'image mysql
+  db:
+    # image de base
+    image: mysql
+    # variable environnement
+    ## correspond au -e
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: default
+    # Politique de redémarrage du conteneur
+    ## 'always' : le conteneur redémarrera automatiquement s'il venait à s'arrêter.
+    restart: always
+    # Montage de volume
+    ## correspond au -v
+    volumes:
+      - db_data:/var/lib/mysql
+    # Port
+    ## correspond au -p
+    ports:
+      - 3307:3306
+    # Network
+    ## correspond au --network
+    networks:
+      - mysql-phpmyadmin
+  
+  # Service phpmyadmin pour gérer la db mysql via interface graphique
+  phpmyadmin:
+    image: phpmyadmin
+    # Ce service dépend du servide db
+    ## Docker compose attendra que le service db soit opérationnel avant de démarrer ce service
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+    restart: always
+    ports:
+      - 8080:80
+    networks:
+      - mysql-phpmyadmin
+  
+  rotate:
+    depends_on:
+      - db
+    # permet de build une image à partir d'un dockerfile
+    ## /!\ soit image soit build
+    build: ./front
+    container_name: rotate_app
+    ports:
+      - 8081:80
+    command: ["nginx", "-g", "daemon off;"]
+
+# Déclaration des volumes utilisés dans les services
+volumes:
+  db_data:
+
+# Déclaration des networks utilisés dans les services
+networks:
+  mysql-phpmyadmin:

@@ -6,65 +6,172 @@ from menu_console.exceptions import SignalException
 
 
 class Menu:
-    def __init__(self):
+    """This class allows the creation and display of a console menu."""
+
+    def __init__(self, menu_name: str = "Menu", menu_description: str = "", parent: 'Menu'= None) -> None:
+        """Menu class constructor.
+
+        Args:
+            menu_name (str, optional): The name of the menu that will be displayed in the console. Defaults to "Menu".
+            menu_description (str, optional): The description of the menu that will be displayed in the console. Defaults to "".
+            parent (Menu, optional): The parent menu of the menu. Defaults to None.
+        """
         self._items_menu: list[ItemMenu] = []
-        self._menu_name: str = "Menu"
+        self._menu_name: str = ""
+        self.menu_name(menu_name)
         self._menu_description: str = ""
+        self.menu_description(menu_description)
         self._msg_menu = ""
+        self._parent: Menu = None
+        self.parent(parent)
     
     @property
     def items_menu(self) -> list[ItemMenu]:
+        """Getter of the attribute '_items_menu'.
+
+        Returns:
+            list[ItemMenu]: The list of menu items.
+        """
         return self._items_menu
     
     @property
     def menu_name(self) -> str:
+        """Getter of the attribute '_menu_name'.
+
+        Returns:
+            str: The name of the menu that will be displayed in the console.
+        """
         return self._menu_name
     
     @menu_name.setter
     def menu_name(self, name: str) -> None:
+        """Setter of the attribute '_menu_name'.
+
+        Args:
+            name (str): The name of the menu that will be displayed in the console.
+
+        Raises:
+            TypeError: 'menu_name' must be a string.
+        """
         if type(name) is not str:
-            raise TypeError("'menu_name' must be a sting.")
+            raise TypeError("'menu_name' must be a string.")
         self._menu_name = name
 
     @property
     def menu_description(self) -> str:
+        """Getter of the attribute '_menu_description'.
+
+        Returns:
+            str: The description of the menu that will be displayed in the console.
+        """
         return self._menu_description
     
     @menu_description.setter
     def menu_description(self, description: str) -> None:
+        """Setter of the attribute '_menu_description'.
+
+        Args:
+            description (str): The description of the menu that will be displayed in the console.
+
+        Raises:
+            TypeError: 'menu_description' must be a string.
+        """
         if type(description) is not str:
-            raise TypeError("'menu_description' must be a sting.")
+            raise TypeError("'menu_description' must be a string.")
         self._menu_description = description
 
+    @property
+    def parent(self) -> 'Menu':
+        """Getter of the attribute '_parent'.
+
+        Returns:
+            Menu: The parent of the menu that is an instance of the class Menu.
+        """
+        return self._parent
+    
+    @parent.setter
+    def parent(self, parent: 'Menu'|None) -> None:
+        """Setter of the attribute '_parent'.
+
+        Args:
+            parent (Menu | None): The parent of the menu.
+
+        Raises:
+            TypeError: 'parent' must be an instance of the class Menu.
+        """
+        if not ((isinstance(parent, 'Menu')) or (parent is not None)):
+            raise TypeError("'parent' must be an instance of the class Menu.")
+        self._parent = parent
+
     def signal_exists(self, signal: str) -> bool:
+        """Checks if one of the menu items has the signal 'signal'.
+
+        Args:
+            signal (str): A signal of an menu item.
+
+        Raises:
+            TypeError: 'signal' must be a string.
+
+        Returns:
+            bool: Return 'True' if one of the menu items has the signal 'signal' and 'False' otherwise.
+        """
         if type(signal) is not str:
-            raise TypeError("'signal' must be a sting.")
+            raise TypeError("'signal' must be a string.")
         for item_menu in self._items_menu:
             if item_menu.signal == signal:
                 return True
         return False
 
     def add_item_menu(self, item_menu:ItemMenu) -> None:
+        """Adds a menu item to the list of menu items.
+
+        Args:
+            item_menu (ItemMenu): A menu item to add.
+
+        Raises:
+            TypeError: 'item_menu' must be an instance of the class ItemMenu.
+            SignalException: Two instances of ItemMenu must have different signals.
+        """
         if not isinstance(item_menu, ItemMenu):
-            raise TypeError("'item_menu' must be an instance of ItemMenu.")
+            raise TypeError("'item_menu' must be an instance of the class ItemMenu.")
         if self.signal_exists(signal=item_menu.signal):
             raise SignalException("Two instances of ItemMenu must have different signals.")
         self._items_menu.append(item_menu)
         self.compute_msg_menu()
 
     def find_item_menu(self, signal: str) -> ItemMenu|None:
+        """Allows to get an item menu with his signal.
+
+        Args:
+            signal (str): The signal of an item menu.
+
+        Raises:
+            TypeError: 'signal' must be a string.
+
+        Returns:
+            ItemMenu|None: Return the item menu that has the signal 'signal or 'None' if no item menu has the signal 'signal'.
+        """
         if type(signal) is not str:
-            raise TypeError("'signal' must be a sting.")
+            raise TypeError("'signal' must be a string.")
         for item_menu in self._items_menu:
             if item_menu.signal == signal:
                 return ItemMenu
         return None
 
     def remove_item_menu(self, item_menu: ItemMenu) -> None:
+        """Allows to remove an item menu.
+
+        Args:
+            item_menu (ItemMenu): The item menu to remove.
+
+        Raises:
+            TypeError: 'item_menu' must be an instance of the class ItemMenu.
+            ValueError: 'item_menu' is not listed among the items menu.
+        """
         if not isinstance(item_menu, ItemMenu):
-            raise TypeError("'item_menu' must be an instance of ItemMenu.")
+            raise TypeError("'item_menu' must be an instance of the class ItemMenu.")
         if item_menu not in self._items_menu:
-            raise ValueError(f"{item_menu = } is not listed among the menu items.")
+            raise ValueError("'item_menu' is not listed among the items menu.")
         self._items_menu.remove(item_menu)
         self.compute_msg_menu()
 

@@ -1,5 +1,6 @@
 import csv
 from dataclasses import dataclass
+import datetime
 from minio import Minio
 
 
@@ -15,9 +16,8 @@ class Customer:
     phone1: str
     phone2: str
     email: str
-    subscription_data: str
+    subscription_data: datetime.date
     website: str
-
 
     def values(self) -> list[str]:
         return [
@@ -31,7 +31,7 @@ class Customer:
             self.phone1,
             self.phone2,
             self.email,
-            self.subscription_data,
+            self.subscription_data.strftime('%Y-%m-%d'),
             self.website
             ]
 
@@ -42,11 +42,10 @@ def load_csv(file_path) -> dict[int, Customer]:
         fieldnames = ["Index", "Customer Id", "First Name", "Last Name", "Company", "City", "Country", "Phone 1", "Phone 2", "Email", "Subscription Date", "Website"]
         reader = csv.DictReader(csvfile, fieldnames=fieldnames)
         for row in reader:
-            index: str = row["Index"]
-            if index.isdigit():
-                index=int(row["Index"])
+            if row["Index"] == "Index":
+                continue
             customer: Customer = Customer(
-                index=index,
+                index=int(row["Index"]),
                 customer_id=row["Customer Id"],
                 first_name=row["First Name"],
                 last_name=row["Last Name"],
@@ -56,12 +55,10 @@ def load_csv(file_path) -> dict[int, Customer]:
                 phone1=row["Phone 1"],
                 phone2=row["Phone 2"],
                 email=row["Email"],
-                subscription_data=row["Subscription Date"],
+                subscription_data=datetime.date.strptime(row["Subscription Date"], "%Y-%m-%d"),
                 website=row["Website"]
                 )
-            customers.update({index: customer})
-    # remove header
-    customers.pop("Index")
+            customers.update({customer.index: customer})
     return customers
 
 

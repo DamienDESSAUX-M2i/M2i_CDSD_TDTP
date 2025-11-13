@@ -4,6 +4,9 @@ from botocore.client import Config
 
 def s3_client():
     endpoint = os.getenv("S3_URL", "http://minio:9000")
+    print(endpoint)
+    print(os.getenv("AWS_ACCESS_KEY_ID"))
+    print(os.getenv("AWS_SECRET_ACCESS_KEY"))
     return boto3.client(
         "s3",
         endpoint_url=endpoint,

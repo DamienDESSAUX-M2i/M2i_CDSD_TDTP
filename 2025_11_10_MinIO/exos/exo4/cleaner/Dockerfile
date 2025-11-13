@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:latest
 
 # Dossier de travail dans le conteneur
 WORKDIR /app
@@ -8,8 +8,8 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copier le code du service generator (fichiers présents dans ./generator côté host)
-COPY app.py /app/app.py
-COPY util.py /app/util.py
+COPY clean_customers.py /app/clean_customers.py
+COPY main.py /app/main.py
 
 # Lancer le service
-CMD ["python", "-u", "app.py"]
+CMD ["python", "main.py"]

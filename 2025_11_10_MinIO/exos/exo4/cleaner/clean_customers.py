@@ -56,50 +56,32 @@ def write_csv(file_path, customers: list[Customer]) -> None:
 def clean_csv(customers: list[Customer]) -> list[Customer]:
     customers_cleaned: list[Customer] = []
     for customer in customers:
-        if customer.email.isspace():
+        # Remove blank email
+        if (customer.email.isspace()) or (customer.email == ""):
             continue
+        # Remove wrong date
         try:
             datetime.date.strptime(customer.signup_date, "%Y-%m-%d")
         except ValueError:
-            continue
-        if (customer.email.isspace()) or (customer.email == ""):
             continue
         customers_cleaned.append(customer)
     return customers_cleaned
 
 
-def main() -> None:
-    endpoint = "minio:9000"
-    access_key = "rootuser"
-    secret_key = "rootpass123"
-    secure = False
-    client: Minio = Minio(
-        endpoint=endpoint,
-        access_key=access_key,
-        secret_key=secret_key,
-        secure=secure
-    )
-
-    bucket_bonze = "bronze"
+def processing(client: Minio) -> None:
+    bucket_bonze = os.getenv("BRONZE_BUCKET", "bronze")
+    bucket_silver = os.getenv("SILVER_BUCKET", "silver")
     prefix = "customers/"
-    csv_files_raw = client.list_objects(bucket_name=bucket_bonze, prefix=prefix)
-    with open("log.txt", "wt", encoding="utf-8") as f:
-        for csv_file_raw in csv_files_raw:
-            f.write(csv_file_raw.object_name)
-
-    # for csv_file_raw in csv_files_raw:
-    #     file_path_get = f"/app/raw/{csv_file_raw.object_name}"
-    #     client.fget_object(bucket_name=bucket_bonze, object_name=csv_file_raw.object_name, file_path=file_path_get)
-    #     customers = load_csv(file_path=file_path_get)
-    #     customers_cleaned = clean_csv(customers=customers)
-    #     file_path_put = f"/app/cleaned/{csv_file_raw.object_name}"
-    #     # write_csv(file_path=file_path_put, customers=customers_cleaned)
-
-    # bucket_silver = "silver"
-    # csv_files_cleaned = os.listdir("/app/cleaned/")
-    # for csv_file_cleaned in csv_files_cleaned:
-    #     client.fput_object(bucket_name=bucket_silver, object_name=f"customers/{csv_file_cleaned}", file_path=f"./app/cleaned/{csv_file_cleaned}")
-
-
-if __name__ == "__main__":
-    main()
+    for csv_file in client.list_objects(bucket_name=bucket_bonze, prefix=prefix):
+        # Local path
+        file_path = f"/app/data/{csv_file.object_name}"
+        # Get csv_file
+        client.fget_object(bucket_name=bucket_bonze, object_name=csv_file.object_name, file_path=file_path)
+        # Processing
+        customers = load_csv(file_path=file_path)
+        customers_cleaned = clean_csv(customers=customers)
+        write_csv(file_path=file_path, customers=customers_cleaned)
+        # Put csv_file
+        client.fput_object(bucket_name=bucket_silver, object_name=csv_file.object_name, file_path=file_path)
+        # Clean local directory
+        os.remove(file_path)

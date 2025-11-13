@@ -10,9 +10,6 @@ services:
       MINIO_REGION: us-east-1
       S3_ENDPOINT: minio:9000
       S3_URL: http://minio:9000
-      BRONZE_BUCKET: bronze
-      SILVER_BUCKET: silver
-      GOLD_BUCKET: gold
     restart: always
     ports:
       - 9000:9000
@@ -32,6 +29,8 @@ services:
       AWS_ACCESS_KEY_ID: rootuser
       AWS_SECRET_ACCESS_KEY: rootpass123
       AWS_DEFAULT_REGION: us-east-1
+      S3_ENDPOINT: minio:9000
+      S3_URL: http://minio:9000
       BRONZE_BUCKET: bronze
     ports:
       - 5000:5000
@@ -45,9 +44,11 @@ services:
     container_name: cleaner
     build: ./cleaner
     environment:
-      AWS_ACCESS_KEY_ID: rootuser
-      AWS_SECRET_ACCESS_KEY: rootpass123
-      AWS_DEFAULT_REGION: us-east-1
+      MINIO_ROOT_USER: rootuser
+      MINIO_ROOT_PASSWORD: rootpass123
+      MINIO_REGION: us-east-1
+      S3_ENDPOINT: minio:9000
+      S3_URL: http://minio:9000
       BRONZE_BUCKET: bronze
       SILVER_BUCKET: silver
     ports:

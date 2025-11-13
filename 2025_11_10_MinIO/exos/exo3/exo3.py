@@ -58,7 +58,7 @@ def main() -> None:
     list_all_objects(client=client_client)
 
     object_name = "customers.csv"
-    file_path = "./2025_11_10_MinIO/exos/customers.csv"
+    file_path = "./2025_11_10_MinIO/exos/exo3/file.csv"
     client_admin.fput_object(bucket_name=bucket_admin, object_name=object_name, file_path=file_path)
     client_admin.fput_object(bucket_name=bucket_manager, object_name=object_name, file_path=file_path)
     client_admin.fput_object(bucket_name=bucket_client, object_name=object_name, file_path=file_path)

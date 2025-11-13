@@ -32,7 +32,7 @@ def main() -> None:
         print(f"\t{bucket_name} maked.")
     
     # Question 3
-    file_path = "./2025_11_10_MinIO/exos/file1.txt"
+    file_path = "./2025_11_10_MinIO/exos/exo1/file1.txt"
     print(f"3. Génération du fichier {file_path}")
     generate_file(file_path=file_path)
 
@@ -72,7 +72,7 @@ def main() -> None:
 
     # Question 8
     print(f"8. Récupération de l'objet {object_name_rename}")
-    file_path_get = "./2025_11_10_MinIO/exos/file_get.txt"
+    file_path_get = "./2025_11_10_MinIO/exos/exo1/file_get.txt"
     client.fget_object(bucket_name=bucket_name, object_name=object_name_rename, file_path=file_path_get)
 
     response = client.get_object(bucket_name=bucket_name, object_name=object_name_rename)

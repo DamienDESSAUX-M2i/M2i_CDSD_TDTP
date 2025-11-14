@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import json
+import csv
 from dataclasses import dataclass
 from datetime import datetime
 from typing import TypedDict
@@ -58,11 +59,14 @@ def load_json(file_path) -> list[Order]:
     return orders
 
 
-def write_json(file_path, orders: list[Order]) -> None:
-    dict_orders: list[DictOrder] = []
-    with open(file_path, 'wt', encoding="utf-8") as jsonfile:
+def write_csv(file_path, orders: list[Order]) -> None:
+    with open(file_path, 'wt', newline='', encoding="utf-8") as csvfile:
+        fieldnames = ["order_id", "customer_id", "product_id", "quantity", "unit_price", "total_amount", "order_ts", "channel"]
+        writer: csv.DictWriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
         for order in orders:
-            dict_order: DictOrder = {
+            writer.writerow(
+                {
                 "order_id": order.order_id,
                 "customer_id": order.customer_id,
                 "product_id": order.product_id,
@@ -71,9 +75,8 @@ def write_json(file_path, orders: list[Order]) -> None:
                 "total_amount": order.total_amount,
                 "order_ts": order.order_ts,
                 "channel": order.channel
-            }
-            dict_orders.append(dict_order)
-        jsonfile.write(json.dumps(dict_orders))
+                }
+            )
 
 
 def clean_json(orders: list[Order]) -> list[Order]:
@@ -134,10 +137,11 @@ def processing(client: Minio) -> None:
         # Processing
         orders = load_json(file_path=file_path)
         orders_cleaned = clean_json(orders=orders)
-        write_json(file_path=file_path, orders=orders_cleaned)
+        write_csv(file_path=file_path, orders=orders_cleaned)
         # Put json_file
         index_underscore = json_file_name.index("_")
         json_file_cleaned_name = json_file_name[:index_underscore] + "_cleaned" + json_file_name[index_underscore:]
-        client.fput_object(bucket_name=BUCKET_SILVER, object_name=json_file_cleaned_name, file_path=file_path)
+        csv_file_cleaned_name = json_file_cleaned_name.replace(".json", ".csv")
+        client.fput_object(bucket_name=BUCKET_SILVER, object_name=csv_file_cleaned_name, file_path=file_path)
         # Clean local directory
         os.remove(file_path)

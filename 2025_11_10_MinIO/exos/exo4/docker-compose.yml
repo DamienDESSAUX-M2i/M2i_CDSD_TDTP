@@ -57,6 +57,25 @@ services:
       - app_network
     restart: always
 
+  aggregator:
+    depends_on:
+      - cleaner
+    container_name: aggregator
+    build: ./aggregator
+    environment:
+      MINIO_ROOT_USER: rootuser
+      MINIO_ROOT_PASSWORD: rootpass123
+      MINIO_REGION: us-east-1
+      S3_ENDPOINT: minio:9000
+      S3_URL: http://minio:9000
+      SILVER_BUCKET: silver
+      GOLD_BUCKET: gold
+    ports:
+      - 5002:5000
+    networks:
+      - app_network
+    restart: always
+
 volumes:
   minio_data:
 

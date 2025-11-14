@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import json
+import csv
 from dataclasses import dataclass
 from datetime import datetime
 import re
@@ -45,15 +46,19 @@ def load_txt(file_path) -> list[Click]:
     return clicks
 
 
-def write_txt(file_path, clicks: list[Click]) -> None:
-    with open(file_path, 'wt', encoding="utf-8") as txtfile:
+def write_csv(file_path, clicks: list[Click]) -> None:
+    with open(file_path, 'wt', encoding="utf-8") as csvfile:
+        fieldnames = ["customer_id", "path", "ts"]
+        writer: csv.DictWriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
         for click in clicks:
-            dict_click: DictClick = {
+            writer.writerow(
+                {
                 "customer_id": click.customer_id,
                 "path": click.path,
                 "ts": click.ts
-            }
-            txtfile.writelines(json.dumps(dict_click))
+                }
+            )
 
 
 def clean_txt(clicks: list[Click]) -> list[Click]:
@@ -81,10 +86,11 @@ def processing(client: Minio) -> None:
         # Processing
         clicks = load_txt(file_path=file_path)
         clicks_cleaned = clean_txt(clicks=clicks)
-        write_txt(file_path=file_path, clicks=clicks_cleaned)
+        write_csv(file_path=file_path, clicks=clicks_cleaned)
         # Put txt_file
         index_underscore = txt_file_name.index("_")
         txt_file_cleaned_name = txt_file_name[:index_underscore] + "_cleaned" + txt_file_name[index_underscore:]
-        client.fput_object(bucket_name=BUCKET_SILVER, object_name=txt_file_cleaned_name, file_path=file_path)
+        csv_file_cleaned_name = txt_file_cleaned_name.replace(".txt", ".csv")
+        client.fput_object(bucket_name=BUCKET_SILVER, object_name=csv_file_cleaned_name, file_path=file_path)
         # Clean local directory
         os.remove(file_path)

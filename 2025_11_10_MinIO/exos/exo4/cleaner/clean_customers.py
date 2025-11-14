@@ -104,6 +104,8 @@ def processing(client: Minio) -> None:
         customers_cleaned = clean_csv(customers=customers)
         write_csv(file_path=file_path, customers=customers_cleaned)
         # Put csv_file
-        client.fput_object(bucket_name=BUCKET_SILVER, object_name=csv_file_name, file_path=file_path)
+        index_underscore = csv_file_name.index("_")
+        csv_file_cleaned_name = csv_file_name[:index_underscore] + "_cleaned" + csv_file_name[index_underscore:]
+        client.fput_object(bucket_name=BUCKET_SILVER, object_name=csv_file_cleaned_name, file_path=file_path)
         # Clean local directory
         os.remove(file_path)

@@ -76,21 +76,6 @@ def write_json(file_path, orders: list[Order]) -> None:
         jsonfile.write(json.dumps(dict_orders))
 
 
-class NegativeQuantity(Exception):
-    def __init__(self, *args):
-        super().__init__(*args)
-
-
-class NegativeUnitPrice(Exception):
-    def __init__(self, *args):
-        super().__init__(*args)
-
-
-class NegativeTotalAmount(Exception):
-    def __init__(self, *args):
-        super().__init__(*args)
-
-
 def clean_json(orders: list[Order]) -> list[Order]:
     orders_cleaned: list[Order] = []
     concatenations: list[str] = [] # It is used to detect doubloons
@@ -136,22 +121,23 @@ def clean_json(orders: list[Order]) -> list[Order]:
         if order.concatenation in concatenations:
             continue
         orders_cleaned.append(order)
-        print(order.concatenation)
         concatenations.append(order.concatenation)
     return orders_cleaned
 
 
 def processing(client: Minio) -> None:
-    for csv_file_name in utils.get_object_names(client=client, bucket_name=BUCKET_BRONZE, prefix=PREFIX):
+    for json_file_name in utils.get_object_names(client=client, bucket_name=BUCKET_BRONZE, prefix=PREFIX):
         # Local path
-        file_path = Path(FOLDER_DATA + csv_file_name)
+        file_path = Path(FOLDER_DATA + json_file_name)
         # Get json_file
-        client.fget_object(bucket_name=BUCKET_BRONZE, object_name=csv_file_name, file_path=file_path)
+        client.fget_object(bucket_name=BUCKET_BRONZE, object_name=json_file_name, file_path=file_path)
         # Processing
         orders = load_json(file_path=file_path)
         orders_cleaned = clean_json(orders=orders)
         write_json(file_path=file_path, orders=orders_cleaned)
         # Put json_file
-        client.fput_object(bucket_name=BUCKET_SILVER, object_name=csv_file_name, file_path=file_path)
+        index_underscore = json_file_name.index("_")
+        json_file_cleaned_name = json_file_name[:index_underscore] + "_cleaned" + json_file_name[index_underscore:]
+        client.fput_object(bucket_name=BUCKET_SILVER, object_name=json_file_cleaned_name, file_path=file_path)
         # Clean local directory
         os.remove(file_path)

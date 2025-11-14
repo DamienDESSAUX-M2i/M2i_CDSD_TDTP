@@ -2,10 +2,6 @@ import os
 import time
 from minio import Minio
 
-import clean_customers
-import clean_orders
-import clean_clicks
-
 
 def main() -> None:
     endpoint = os.getenv("S3_ENDPOINT", "minio:9000")
@@ -28,9 +24,6 @@ def main() -> None:
 
     while True:
         time.sleep(5)
-        clean_customers.processing(client=client)
-        clean_orders.processing(client=client)
-        clean_clicks.processing(client=client)
 
 
 if __name__ == "__main__":

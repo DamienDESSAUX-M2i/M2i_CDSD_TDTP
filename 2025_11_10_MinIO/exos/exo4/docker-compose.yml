@@ -40,7 +40,7 @@ services:
 
   cleaner:
     depends_on:
-      - minio
+      - generator
     container_name: cleaner
     build: ./cleaner
     environment:

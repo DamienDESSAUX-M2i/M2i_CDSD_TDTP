@@ -3,6 +3,7 @@ import time
 from minio import Minio
 
 import clean_customers
+import clean_orders
 
 
 def main() -> None:
@@ -27,6 +28,7 @@ def main() -> None:
     while True:
         time.sleep(5)
         clean_customers.processing(client=client)
+        clean_orders.processing(client=client)
 
 
 if __name__ == "__main__":

@@ -71,25 +71,25 @@ def processing(client: Minio) -> None:
         csv_file_revenue_by_channel_name = "revenue_by_channel/revenue_by_channel" + csv_file_name[index_underscore:]
         file_path_revenue_by_channel = Path(FOLDER_DATA + csv_file_revenue_by_channel_name)
         aov(dataframe=dataframe, file_path=file_path_revenue_by_channel)
-        ## revenue by country
-        csv_file_customer_name = "customers/customers_cleaned" + csv_file_name[index_underscore:]
-        file_path_customer = Path(FOLDER_DATA + csv_file_customer_name)
-        ### GET customer
-        client.fget_object(bucket_name=BUCKET_SILVER, object_name=csv_file_customer_name, file_path=file_path_customer)
-        dataframe_customer = pd.read_csv(file_path_customer)
-        ### Processing
-        if not Path.exists(FOLDER_DATA + "revenue_by_country"):
-            os.mkdir(FOLDER_DATA + "revenue_by_country")
-        csv_file_revenue_by_country_name = "revenue_by_country/revenue_by_country" + csv_file_name[index_underscore:]
-        file_path_revenue_by_country = Path(FOLDER_DATA + csv_file_revenue_by_country_name)
-        revenue_by_country(dataframe_order=dataframe, dataframe_customer=dataframe_customer, file_path=file_path_revenue_by_country)
+        # ## revenue by country
+        # csv_file_customer_name = "customers/customers_cleaned" + csv_file_name[index_underscore:]
+        # file_path_customer = Path(FOLDER_DATA + csv_file_customer_name)
+        # ### GET customer
+        # client.fget_object(bucket_name=BUCKET_SILVER, object_name=csv_file_customer_name, file_path=file_path_customer)
+        # dataframe_customer = pd.read_csv(file_path_customer)
+        # ### Processing
+        # if not Path.exists(FOLDER_DATA + "revenue_by_country"):
+        #     os.mkdir(FOLDER_DATA + "revenue_by_country")
+        # csv_file_revenue_by_country_name = "revenue_by_country/revenue_by_country" + csv_file_name[index_underscore:]
+        # file_path_revenue_by_country = Path(FOLDER_DATA + csv_file_revenue_by_country_name)
+        # revenue_by_country(dataframe_order=dataframe, dataframe_customer=dataframe_customer, file_path=file_path_revenue_by_country)
 
         # Put csv_files
         client.fput_object(bucket_name=BUCKET_GOLD, object_name=csv_file_sales_by_day_name, file_path=file_path_sales_by_day)
         client.fput_object(bucket_name=BUCKET_GOLD, object_name=csv_file_top_product_name, file_path=file_path_top_product)
         client.fput_object(bucket_name=BUCKET_GOLD, object_name=csv_file_aov_name, file_path=file_path_aov)
         client.fput_object(bucket_name=BUCKET_GOLD, object_name=csv_file_revenue_by_channel_name, file_path=file_path_revenue_by_channel)
-        client.fput_object(bucket_name=BUCKET_GOLD, object_name=csv_file_revenue_by_country_name, file_path=file_path_revenue_by_country)
+        # client.fput_object(bucket_name=BUCKET_GOLD, object_name=csv_file_revenue_by_country_name, file_path=file_path_revenue_by_country)
 
         # Clean local directory
         os.remove(file_path)
@@ -97,5 +97,5 @@ def processing(client: Minio) -> None:
         os.remove(file_path_top_product)
         os.remove(file_path_aov)
         os.remove(file_path_revenue_by_channel)
-        os.remove(file_path_customer)
-        os.remove(file_path_revenue_by_country)
+        # os.remove(file_path_customer)
+        # os.remove(file_path_revenue_by_country)

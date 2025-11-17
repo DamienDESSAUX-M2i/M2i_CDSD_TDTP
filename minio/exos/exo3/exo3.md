@@ -18,9 +18,9 @@ manager-bucket/ |
 ## Création des policies.
 
 ```bash
-mc admin policy create local admin-policy "./2025_11_10_MinIO/exos/exo3/admin-policy.json"
-mc admin policy create local manager-policy "./2025_11_10_MinIO/exos/exo3/manager-policy.json"
-mc admin policy create local client-policy "./2025_11_10_MinIO/exos/exo3/client-policy.json"
+mc admin policy create local admin-policy "./minio/exos/exo3/admin-policy.json"
+mc admin policy create local manager-policy "./minio/exos/exo3/manager-policy.json"
+mc admin policy create local client-policy "./minio/exos/exo3/client-policy.json"
 mc admin policy list local
 ```
 

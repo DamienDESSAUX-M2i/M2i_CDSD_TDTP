@@ -60,7 +60,7 @@ def main() -> None:
     test(description="ListBucket client", callable=list_all_objects, client=client_client)
 
     object_name = "customers.csv"
-    file_path = "./2025_11_10_MinIO/exos/exo3/file.csv"
+    file_path = "./minio/exos/exo3/file.csv"
     test(description="PutObject admin/admin", callable=client_admin.fput_object, bucket_name=bucket_admin, object_name=object_name, file_path=file_path)
     test(description="PutObject admin/manager", callable=client_admin.fput_object, bucket_name=bucket_manager, object_name=object_name, file_path=file_path)
     test(description="PutObject admin/client", callable=client_admin.fput_object, bucket_name=bucket_client, object_name=object_name, file_path=file_path)
@@ -73,7 +73,7 @@ def main() -> None:
     test(description="PutObject client/manager", callable=client_client.fput_object, bucket_name=bucket_manager, object_name=object_name, file_path=file_path)
     test(description="PutObject client/client", callable=client_client.fput_object, bucket_name=bucket_client, object_name=object_name, file_path=file_path)
 
-    file_path_get = "./2025_11_10_MinIO/exos/exo3/file_get.csv"
+    file_path_get = "./minio/exos/exo3/file_get.csv"
     test(description="GetObject admin/admin", callable=client_admin.fget_object, bucket_name=bucket_admin, object_name=object_name, file_path=file_path_get)
     test(description="GetObject admin/manager", callable=client_admin.fget_object, bucket_name=bucket_manager, object_name=object_name, file_path=file_path_get)
     test(description="GetObject admin/client", callable=client_admin.fget_object, bucket_name=bucket_client, object_name=object_name, file_path=file_path_get)

@@ -22,7 +22,7 @@ mc alias etl http://localhost:9000 etl_user "etl_user"
 
 Create a policy.
 ```bash
-mc admin policy create local etl-bronze "./2025_11_10_MinIO/demos/demo_iam/etl_policy.json"
+mc admin policy create local etl-bronze "./minio/demos/demo_iam/etl_policy.json"
 ```
 
 Attach a policy to a user.

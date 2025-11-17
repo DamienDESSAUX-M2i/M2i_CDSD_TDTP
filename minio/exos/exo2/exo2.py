@@ -128,11 +128,11 @@ def main() -> None:
     make_bucket(client=client, bucket_name=bucket_name_am)
     make_bucket(client=client, bucket_name=bucket_name_nz)
 
-    file_path = "./2025_11_10_MinIO/exos/exo2/customers.csv"
+    file_path = "./minio/exos/exo2/customers.csv"
     customers = load_csv(file_path=file_path)
     customers_am, customers_nz = filter_csv(customers=customers)
-    file_path_am = "./2025_11_10_MinIO/exos/exo2/customers_am.txt"
-    file_path_nz = "./2025_11_10_MinIO/exos/exo2/customers_nz.csv"
+    file_path_am = "./minio/exos/exo2/customers_am.txt"
+    file_path_nz = "./minio/exos/exo2/customers_nz.csv"
     write_txt(file_path=file_path_am, customers=customers_am)
     write_csv(file_path=file_path_nz, customers=customers_nz)
 

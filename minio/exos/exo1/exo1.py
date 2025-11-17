@@ -32,7 +32,7 @@ def main() -> None:
         print(f"\t{bucket_name} maked.")
     
     # Question 3
-    file_path = "./2025_11_10_MinIO/exos/exo1/file1.txt"
+    file_path = "./minio/exos/exo1/file1.txt"
     print(f"3. Génération du fichier {file_path}")
     generate_file(file_path=file_path)
 

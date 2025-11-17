@@ -6,7 +6,7 @@ Application console en Python qui simule la gestion d'une bilbiothèque.
 
 Pour cloner le repository, éxécuter la commande bash
 ```bash
-git clone https://github.com/DamienDESSAUX-M2i/M2i_CDSD_TDTP/tree/main/2025_10_27_python_avance/exercices/tp
+git clone https://github.com/DamienDESSAUX-M2i/M2i_CDSD_TDTP/tree/main/python_avance/exercices/tp
 ```
 
 ## Comment lancer l'application

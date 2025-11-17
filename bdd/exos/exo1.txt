@@ -1,0 +1,34 @@
+Scénario 1.
+
+La cohérence n'est pas cruciale, on utilise les propriétés BASE.
+La propriété 'Eventual consistency' assure que tous les utilisateurs finiront par voir le message car tous les noeuds finiront par être cohérents.
+
+Scénario 2.
+
+La cohérence est cruciale, on utilise les propriétés ACID.
+La propriété 'Durabilité' assure qu'un siège réservé ne peut être réservé de nouveau car lorsqu'une transaction est effectuée, elle est permanante.
+
+Scénario 3.
+
+La cohérence n'est pas cruciale, on utilise les propriétés BASE.
+La propriété 'Basically Available' assure que la disponibilité de la base de données.
+
+Scénario 4.
+
+La cohérence est cruciale, on utilise les propriétés ACID.
+La propriété 'Durabilité' assure que les données ne seront pas perdues car lorsqu'une transaction est effectuée, elle est permanante.
+
+Scénario 5.
+
+La cohérence est cruciale, on utilise les propriétés ACID.
+La propriété 'Atomicité' assure que l'argent ne sera pas perdu si la transaction échoue car la transaction est soit réalisée entirement, soit non réalisée.
+
+Scénario 6.
+
+La cohérence n'est pas cruciale, on utilise les propriétés BASE.
+La propriété 'Basically Available' assure que le message est disponible même si une partie du système est en panne.
+
+Scénario 7.
+
+La cohérence est cruciale, on utilise les propriétés ACID.
+La propriété 'Isolation' permet aux transactions de ne pas interférer, ce qui évite les conflits entre transactions.

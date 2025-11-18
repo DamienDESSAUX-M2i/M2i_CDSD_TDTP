@@ -6,12 +6,12 @@ La propriété 'Eventual consistency' assure que tous les utilisateurs finiront 
 Scénario 2.
 
 La cohérence est cruciale, on utilise les propriétés ACID.
-La propriété 'Durabilité' assure qu'un siège réservé ne peut être réservé de nouveau car lorsqu'une transaction est effectuée, elle est permanante.
+La propriété 'Cohérence' assure qu'un siège réservé ne peut être réservé deux fois car une transaction transforme une BDD valide en une BDD valide, ie au plus 1 réservation par siège.
 
 Scénario 3.
 
 La cohérence n'est pas cruciale, on utilise les propriétés BASE.
-La propriété 'Basically Available' assure que la disponibilité de la base de données.
+La propriété 'Soft state' permet au système d'être dans un état intermédiaire.
 
 Scénario 4.
 

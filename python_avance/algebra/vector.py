@@ -1,15 +1,17 @@
 import math
 
-from exceptions import SizeError
+from exceptions import EmptyError, SizeError
 
 
 class Vector:
     def __init__(self, coordinates: list[float]):
-        """Constructor"""
+        """Constructor.
+
+        Args:
+            coordinates (list[float]): List of vector coordinates.
+        """
         self._coordinates: list[float] = []
         self.coordinates = coordinates
-        self._length: int = 0
-        self.length = len(coordinates)
 
     @property
     def coordinates(self) -> list[float]:
@@ -29,12 +31,15 @@ class Vector:
 
         Raises:
             TypeError: Type of coordinates must be list[float].
+            EmptyError: "A vector must have at least one coordinate."
         """
         if not (
             isinstance(coordinates, list)
-            and all(isinstance(float, coordinate) for coordinate in coordinates)
+            and all(isinstance(coordinate, float) for coordinate in coordinates)
         ):
             raise TypeError("Type of coordinates must be list[float].")
+        if coordinates == []:
+            raise EmptyError("A vector must have at least one coordinate.")
         self._coordinates = coordinates
 
     @property
@@ -44,21 +49,54 @@ class Vector:
         Returns:
             int: Length of the vector.
         """
-        return self._length
+        return len(self._coordinates)
 
-    @length.setter
-    def length(self, length: int) -> None:
-        """Set length of the vector.
+    def __str__(self) -> str:
+        """str method.
+
+        Returns:
+            str: Coordinates of the vector.
+        """
+        return f"[{';\n'.join([str(x) for x in self.coordinates])}]"
+
+    def __getitem__(self, key: int) -> float:
+        """Get the k-th coordinate of the vector.
 
         Args:
-            length: Length of the vector.
+            key (int): index coordinate.
 
         Raises:
-            TypeError: Type of length must be int.
+            TypeError: The type of key must be int.
+            IndexError: key must be between 0 and the length of the vector minus one.
+
+        Returns:
+            float: k-th coordinate of the vector.
         """
-        if not isinstance(length, int):
-            raise TypeError("Type of length must be int.")
-        self._length = length
+        if not isinstance(key, int):
+            raise TypeError("The type of key must be int.")
+        if (key < 0) or (key > self.length - 1):
+            raise IndexError(f"key must be between 0 and {self.length - 1}")
+        return self.coordinates[key]
+
+    def __setitem__(self, key: int, coordinate: float) -> None:
+        """Set the k-th coordinate of the vector.
+
+        Args:
+            key (int): index coordinate.
+            coordinate (float): k-th coordinate of the vector
+
+        Raises:
+            TypeError: The type of key must be int.
+            IndexError: key must be between 0 and the length of the vector minus one.
+            TypeError: The type of coordinate must be float.
+        """
+        if not isinstance(key, int):
+            raise TypeError("The type of key must be int.")
+        if (key < 0) or (key > self.length - 1):
+            raise IndexError(f"key must be between 0 and {self.length - 1}")
+        if not isinstance(coordinate, float):
+            raise TypeError("The type of coordinate must be float.")
+        self.coordinates[key] = coordinate
 
     def __add__(self, other: "Vector") -> "Vector":
         """Add two vectors.
@@ -103,7 +141,7 @@ class Vector:
         )
 
     def __mul__(self, scalar: float) -> "Vector":
-        """Multiply a vector by a scalar..
+        """Multiply a vector by a scalar.
 
         Args:
             scalar (float): Scalar that multiplies the vector.
@@ -157,11 +195,11 @@ class Vector:
         return Vector(
             coordinates=[
                 self.coordinates[1] * other.coordinates[2]
-                - other.coordinates[2] * self.coordinates[1],
+                - self.coordinates[2] * other.coordinates[1],
                 self.coordinates[0] * other.coordinates[2]
-                - other.coordinates[2] * self.coordinates[0],
+                - self.coordinates[2] * other.coordinates[0],
                 self.coordinates[0] * other.coordinates[1]
-                - other.coordinates[1] * self.coordinates[0],
+                - self.coordinates[1] * other.coordinates[0],
             ]
         )
 
@@ -184,6 +222,8 @@ class Vector:
             raise ValueError("p must be greather than or equal to 0.")
         if p == 0:
             return max([abs(x) for x in self.coordinates])
+        if p == 1:
+            return sum([abs(x) for x in self.coordinates])
         return math.exp(
             math.log(sum([math.pow(abs(x), p) for x in self.coordinates])) / p
         )
@@ -235,7 +275,7 @@ class Vector:
         Returns:
             Vector: True if the vectors are orthogonal, False overwise.
         """
-        if self.vector_product(other=other) == 0:
+        if self.dot_product(other=other) == 0.0:
             return True
         return False
 
@@ -264,3 +304,23 @@ class Vector:
                 ):
                     return False
         return True
+
+
+if __name__ == "__main__":
+    vector1 = Vector([1.0, 0.0, 2.0])
+    vector2 = Vector([-3.0, 0.5, 1.5])
+    print("getitem : ", vector1[0], "\n")
+    vector1[1] = -1.0
+    print("setitem : ", vector1[1], "\n")
+    print("add : ", vector1 + vector2, "\n")
+    print("sub : ", vector1 - vector2, "\n")
+    print("mul : ", vector1 * 2.0, "\n")
+    print("dot_product : ", vector1.dot_product(vector2), "\n")
+    print("is_orthogonal : ", vector1.is_orthogonal(vector2), "\n")
+    print("vector_product : ", vector1.vector_product(vector2), "\n")
+    print("is collonear : ", vector1.is_collinear(vector1), "\n")
+    print("norm_1 : ", vector1.norm_1(), "\n")
+    print("norm_2 : ", vector1.norm_2(), "\n")
+    print("norm_infinity : ", vector1.norm_infinity(), "\n")
+    vector1.normalisation(p=0)
+    print("normalisation : ", vector1.norm_infinity(), "\n")

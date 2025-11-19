@@ -1,0 +1,18 @@
+CREATE TABLE IF NOT EXISTS utilisateurs (
+	id_utilisateur INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	last_name VARCHAR(255) NOT NULL,
+	email VARCHAR(255) UNIQUE,
+	age INT,
+	CONSTRAINT age_adult CHECK (age >= 18),
+	country VARCHAR(255) DEFAULT 'France'
+);
+
+ALTER TABLE utilisateurs RENAME TO users;
+
+ALTER TABLE users ADD COLUMN first_name VARCHAR(200) NOT NULL;
+
+ALTER TABLE users DROP CONSTRAINT age_adult;
+
+ALTER TABLE users ALTER COLUMN last_name TYPE VARCHAR(200);
+
+DROP TABLE utilisateurs;

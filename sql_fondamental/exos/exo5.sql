@@ -17,7 +17,7 @@ CREATE TABLE employees (
 INSERT INTO services (libelle)
 VALUES
     ('Informatique'),
-	('Marketing');
+    ('Marketing');
 
 INSERT INTO services (libelle, date_creation)
 VALUES ('Ressources Humaines', '2024-01-01');
@@ -33,7 +33,7 @@ WHERE libelle='Ressources Humaines';
 
 -- Question 2c
 DELETE FROM services WHERE libelle='Marketing';
-DELETE FROM services WHERE date_creation='2024-01-01';
+DELETE FROM services WHERE date_creation<'2024-01-01';
 
 -- Question 3a
 INSERT INTO employees (nom, prenom, id_service)

@@ -1,7 +1,7 @@
 import math
 
-from exceptions import EmptyError, SizeError
-from vector import Vector
+from matrix.exceptions import EmptyError, SizeError
+from matrix.vector import Vector
 
 
 class Matrix:
@@ -182,19 +182,157 @@ class Matrix:
         )
 
     def __pow__(self, power: int) -> "Matrix":
+        """Compute the power of the matrix.
+
+        Args:
+            power (int): Exponent of the power.
+
+        Raises:
+            TypeError: The type of power must be int.
+            ValueError: 'power' must be greater than or equals to 0.
+            SizeError: The matrix must be squared.
+
+        Returns:
+            Matrix: Power of the matrix.
+        """
         if not isinstance(power, int):
-            raise TypeError("The type of power must be int.")
+            raise TypeError("The type of 'power' must be int.")
         if power < 0:
-            raise ValueError("power must be greater than or equals to 0.")
+            raise ValueError("'power' must be greater than or equals to 0.")
         n, m = self.size
         if n != m:
             raise SizeError("The matrix must be squared.")
         if power == 0:
-            return Matrix.ones(n, n)
+            return Matrix.diag(Vector([1.0 for k in range(n)]))
         power_matrix = self
         for k in range(power):
             power_matrix = power_matrix @ self
         return power_matrix
+
+    @property
+    def trace(self) -> float:
+        """Compute the trace of the matrix.
+
+        Raises:
+            SizeError: Matrix must be squared.
+
+        Returns:
+            float: Trace of the matrix.
+        """
+        n, m = self.size
+        if n != m:
+            raise SizeError("Matrix must be squared.")
+        return sum([self[k][k] for k in range(self.size[0])])
+
+    @property
+    def norm_frobenius(self) -> float:
+        """Compute frobenius norm of the matrix.
+
+        Returns:
+            float: Frobenius norm of the matrix.
+        """
+        return math.sqrt((self.transpose() @ self).trace)
+
+    @classmethod
+    def ones(cls, n: int, m: int) -> "Matrix":
+        """Create the matrix full of 1.
+
+        Args:
+            n (int): Number of lignes.
+            m (int): Number of columns.
+
+        Raises:
+            TypeError: The type of 'n' must be int.
+            ValueError: 'n' must be greater than or equals to 1.
+            TypeError: The type of 'm' must be int.
+            ValueError: 'm' must be greater than or equals to 1.
+
+        Returns:
+            Matrix: Matrix full of 1.
+        """
+        if not isinstance(n, int):
+            raise TypeError("The type of 'n' must be int.")
+        if n < 1:
+            raise ValueError("'n' must be greater than or equals to 1.")
+        if not isinstance(m, int):
+            raise TypeError("The type of 'm' must be int.")
+        if m < 1:
+            raise ValueError("'m' must be greater than or equals to 1.")
+        return Matrix([Vector.ones(m) for i in range(n)])
+
+    @classmethod
+    def zeros(cls, n: int, m: int) -> "Matrix":
+        """Create the matrix full of 0.
+
+        Args:
+            n (int): Number of lignes.
+            m (int): Number of columns.
+
+        Raises:
+            TypeError: The type of 'n' must be int.
+            ValueError: 'n' must be greater than or equals to 1.
+            TypeError: The type of 'm' must be int.
+            ValueError: 'm' must be greater than or equals to 1.
+
+        Returns:
+            Matrix: Matrix full of 0.
+        """
+        if not isinstance(n, int):
+            raise TypeError("The type of 'n' must be int.")
+        if n < 1:
+            raise ValueError("'n' must be greater than or equals to 1.")
+        if not isinstance(m, int):
+            raise TypeError("The type of 'm' must be int.")
+        if m < 1:
+            raise ValueError("'m' must be greater than or equals to 1.")
+        return Matrix([Vector.zeros(m) for i in range(n)])
+
+    @classmethod
+    def diag(cls, vector: Vector) -> "Matrix":
+        """Create the diagonal matrix whose diagonal is the given vector.
+
+        Args:
+            vector (Vector): Vector that will be the diagonal of the matrix.
+
+        Raises:
+            TypeError: The type of 'n' must be int.
+            ValueError: 'n' must be greater than or equals to 1.
+            TypeError: The type of 'm' must be int.
+            ValueError: 'm' must be greater than or equals to 1.
+
+        Returns:
+            Matrix: Diagonal matrix whose diagonal is the given vector.
+        """
+        if not isinstance(vector, Vector):
+            raise TypeError("The type of 'vector' must be Vector.")
+        matrix_diag: Matrix = Matrix.zeros(vector.length, vector.length)
+        for k in range(vector.length):
+            matrix_diag[k][k] = vector[k]
+        return matrix_diag
+
+    def is_symmetric(self) -> bool:
+        """Check if the matrix is symmetric.
+
+        Raises:
+            SizeError: Matrix must be squared.
+
+        Returns:
+            bool: True if the matrix is symmetrix, False overwise.
+        """
+        n, m = self.size
+        if n != m:
+            raise SizeError("Matrix must be squared.")
+        for i in range(1, n):
+            for j in range(i, m):
+                if self[i][j] != self[j][i]:
+                    return False
+        return True
+
+    def is_positive(self) -> bool:
+        raise NotImplementedError
+
+    def is_definite(self) -> bool:
+        raise NotImplementedError
 
 
 if __name__ == "__main__":
@@ -213,4 +351,10 @@ if __name__ == "__main__":
     print("transpose : ", matrix3.transpose(), "\n")
     matrix4 = Matrix([Vector([0.0, 1.0]), Vector([1.0, 0.0]), Vector([1.0, 1.0])])
     print("matmul", matrix3 @ matrix4, "\n")
-    print("pow : ", matrix1**2)
+    print("ones : ", Matrix.ones(2, 3), "\n")
+    print("zeros : ", Matrix.zeros(3, 2), "\n")
+    print("diag : ", Matrix.diag(Vector([1.5, -1.0])), "\n")
+    print("pow : ", matrix1**2, "\n")
+    print("trace : ", matrix1.trace, "\n")
+    print("norm frobenius : ", matrix1.norm_frobenius, "\n")
+    print("is_symmetric : ", matrix1.is_symmetric(), "\n")

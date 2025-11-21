@@ -1,0 +1,64 @@
+name: minio_tp4
+
+services:
+  minio:
+    container_name: minio
+    image: quay.io/minio/minio
+    environment:
+      MINIO_ROOT_USER: rootuser
+      MINIO_ROOT_PASSWORD: rootpass123
+      MINIO_REGION: us-east-1
+      S3_ENDPOINT: minio:9000
+      S3_URL: http://minio:9000
+    restart: always
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - minio_data:/data
+    networks:
+      - app_network
+    command: ["server", "/data", "--console-address" ,":9001"]
+
+  generator:
+    depends_on:
+      - minio
+    container_name: generator
+    build: ./generator
+    environment:
+      AWS_ACCESS_KEY_ID: rootuser
+      AWS_SECRET_ACCESS_KEY: rootpass123
+      AWS_DEFAULT_REGION: us-east-1
+      S3_ENDPOINT: minio:9000
+      S3_URL: http://minio:9000
+      BRONZE_BUCKET: bronze
+    ports:
+      - 5000:5000
+    networks:
+      - app_network
+    restart: always
+
+  cleaner:
+    depends_on:
+      - minio
+    container_name: cleaner
+    build: ./cleaner
+    environment:
+      MINIO_ROOT_USER: rootuser
+      MINIO_ROOT_PASSWORD: rootpass123
+      MINIO_REGION: us-east-1
+      S3_ENDPOINT: minio:9000
+      S3_URL: http://minio:9000
+      BRONZE_BUCKET: bronze
+      SILVER_BUCKET: silver
+    ports:
+      - 5001:5000
+    networks:
+      - app_network
+    restart: always
+
+volumes:
+  minio_data:
+
+networks:
+  app_network:

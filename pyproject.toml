@@ -6,7 +6,9 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "jupyterlab>=4.4.10",
+    "lorem-text>=3.0",
     "matplotlib>=3.10.7",
+    "minio>=7.2.18",
     "numpy>=2.3.4",
     "pandas>=2.3.3",
     "seaborn>=0.13.2",

@@ -1,0 +1,59 @@
+name: sql_fondamental_exo12
+
+services:
+  pgdb:
+    image: postgres
+    container_name: pgdb
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: mydb
+    ports:
+      - 5432:5432
+    volumes:
+      - v_pgdb:/var/lib/postgresql
+    networks:
+      - db_network
+      - app_network
+    restart: always
+
+  pgadmin:
+    depends_on:
+      - pgdb
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - 8080:80
+    volumes:
+      - v_pgadmin:/var/lib/pgadmin
+    networks:
+      - db_network
+    restart: always
+
+  app:
+    depends_on:
+      - pgdb
+    build: ./app
+    container_name: app
+    environment:
+      USER: admin
+      PASSWORD: admin
+      DBNAME: mydb
+      HOST: localhost
+      PORT: '5432'
+    ports:
+     - 5000:5000
+    networks:
+      - app_network
+    restart: always
+
+volumes:
+  v_pgdb:
+  v_pgadmin:
+
+networks:
+  db_network:
+  app_network:

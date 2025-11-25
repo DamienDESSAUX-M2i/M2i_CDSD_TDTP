@@ -1,0 +1,18 @@
+FROM python:latest
+
+WORKDIR /app
+
+COPY requirements.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
+
+# RUN pip install psycopg[binary]
+# RUN pip install pydantic[email]
+
+COPY main.py /app/main.py
+COPY ihm.py /app/ihm.py
+COPY models /app/models
+COPY repository /app/repository
+
+EXPOSE 5000
+
+CMD ["tail", "-f", "/dev/null"]

@@ -1,0 +1,12 @@
+FROM python:latest
+
+WORKDIR /app
+
+RUN pip install psycopg[binary]
+RUN pip install pydantic[email]
+
+COPY main.py /app/main.py
+
+EXPOSE 5000
+
+CMD ["tail", "-f", "/dev/null"]

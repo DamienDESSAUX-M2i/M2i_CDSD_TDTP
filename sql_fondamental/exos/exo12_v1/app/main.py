@@ -2,7 +2,7 @@ import datetime
 
 import psycopg
 
-DSN = "dbname=mydb user=root password=root host=localhost port=5432"
+DSN = "dbname=mydb user=admin password=admin host=pgdb port=5432"
 
 
 def init_db():
@@ -65,6 +65,52 @@ def init_db():
                             FOREIGN KEY (id_chanson)
                             REFERENCES chansons(id_chanson)
                     );
+                    """
+                )
+    except Exception as e:
+        print(e)
+
+
+def insert_test_values():
+    try:
+        with psycopg.connect(DSN) as connection:
+            with connection.cursor() as cursor:
+                # INSERT utilisateurs
+                cursor.execute(
+                    """
+                    INSERT INTO utilisateurs (nom_utilisateur, email, date_inscription)
+                    VALUES ('damien', 'damien@m2i.fr', '2025-11-25'),
+                    ('thierry', 'thierry@m2i.fr', '2025-10-20'),
+                    ('clement', 'clement@m2i.fr', '2025-08-05');
+                    """
+                )
+                # INSERT chansons
+                cursor.execute(
+                    """
+                    INSERT INTO chansons (titre, artiste, album, duree, genre, annee_sortie)
+                    VALUES ('hells bells', 'acdc', 'back in black', '00:05:12', 'hard rock', '1980-07-25'),
+                    ('times like these', 'foo fighters', 'one by one', '00:04:36', 'rock', '2002-10-22'),
+                    ('fear of the dark', 'iron maiden', 'fear of the dark', '00:05:35', 'metal', '1992-05-11');
+                    """
+                )
+                # INSERT playlists
+                cursor.execute(
+                    """
+                    INSERT INTO playlists (id_utilisateur, nom_playlist, date_creation)
+                    VALUES ('1', 'rock', '2025-11-25'),
+                    ('1', 'fun', '2025-11-25'),
+                    ('2', 'best of', '2025-11-25');
+                    """
+                )
+                # INSERT playlists_chansons
+                cursor.execute(
+                    """
+                    INSERT INTO playlists_chansons (id_playlist, id_chanson)
+                    VALUES ('1','1'),
+                    ('1','3'),
+                    ('2','2'),
+                    ('3','1'),
+                    ('3','2');
                     """
                 )
     except Exception as e:
@@ -258,23 +304,21 @@ def insert_into_playlists(
                     (id_utilisateur, nom_playlist, date_creation),
                 )
                 print(
-                    f"Insertion d'une chanson dans la table chansons :\n{cursor.fetchone()}"
+                    f"Insertion d'une playlist dans la table playlists :\n{cursor.fetchone()}"
                 )
     except Exception as e:
         print(e)
 
 
-def select_playlist(id_playlist):
+def select_playlist(id_playlist: int):
     try:
         with psycopg.connect(DSN) as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
                     """
-                    SELECT u.nom_utilisateur, p.nom_playlist, p.date_creation
-                    FROM playlists AS p
-                    INNER JOIN utilisateurs AS u
-                    ON p.id_utilisateur = u.id_utilisateur
-                    WHERE p.id_playlist=%s;
+                    SELECT id_utilisateur, nom_playlist, date_creation
+                    FROM playlists
+                    WHERE id_playlist=%s;
                     """,
                     (id_playlist,),
                 )
@@ -283,7 +327,7 @@ def select_playlist(id_playlist):
         print(e)
 
 
-def select_playlist_chansons(id_playlist):
+def select_playlist_chansons(id_playlist: int):
     try:
         with psycopg.connect(DSN) as connection:
             with connection.cursor() as cursor:
@@ -306,6 +350,23 @@ def select_playlist_chansons(id_playlist):
         print(e)
 
 
+def select_playlist_chanson(id_playlist: int, id_chanson: int):
+    try:
+        with psycopg.connect(DSN) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT id_playlist, id_chanson
+                    FROM playlists_chansons
+                    WHERE id_playlist=%s AND id_chanson=%s;
+                    """,
+                    (id_playlist, id_chanson),
+                )
+                return cursor.fetchone()
+    except Exception as e:
+        print(e)
+
+
 def insert_into_playlists_chansons(id_playlist: int, id_chanson: int):
     try:
         with psycopg.connect(DSN) as connection:
@@ -316,6 +377,21 @@ def insert_into_playlists_chansons(id_playlist: int, id_chanson: int):
                 )
                 print(
                     f"Insertion d'une chanson dans la table playlists_chansons :\n{cursor.fetchone()}"
+                )
+    except Exception as e:
+        print(e)
+
+
+def delete_playlist_chanson(id_playlist: int, id_chanson: int):
+    try:
+        with psycopg.connect(DSN) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "DELETE FROM playlists_chansons WHERE id_playlist=%s AND id_chanson=%s RETURNING *;",
+                    (id_playlist, id_chanson),
+                )
+                print(
+                    f"Suppression d'une chanson dans la table playlists_chansons :\n{cursor.fetchone()}"
                 )
     except Exception as e:
         print(e)
@@ -334,9 +410,9 @@ def update_playlist(
                 if row:
                     cursor.execute(
                         """
-                        UPDATE playlist
+                        UPDATE playlists
                         SET id_utilisateur=%s, nom_playlist=%s, date_creation=%s
-                        WHERE id_chanson=%s
+                        WHERE id_playlist=%s
                         RETURNING *;
                         """,
                         (id_utilisateur, nom_playlist, date_creation, id_playlist),
@@ -467,11 +543,11 @@ def menu_chansons():
                 titre: str = input("Titre : ")
                 artiste: str = input("Artiste : ")
                 album: str = input("Album : ")
-                duree: str = input("Durée HH-MM-SS: ")
+                duree: str = input("Durée HH:MM:SS: ")
                 try:
-                    h: int = int(duree.split("-")[0])
-                    m: int = int(duree.split("-")[1])
-                    s: int = int(duree.split("-")[2])
+                    h: int = int(duree.split(":")[0])
+                    m: int = int(duree.split(":")[1])
+                    s: int = int(duree.split(":")[2])
                     duree: datetime.time = datetime.time(h, m, s)
                 except Exception:
                     duree: datetime.time = datetime.time(0, 0, 0)
@@ -501,11 +577,11 @@ def menu_chansons():
                         titre: str = input(f"Titre ({row[0]}) : ")
                         artiste: str = input(f"Artiste ({row[1]}) : ")
                         album: str = input(f"Album ({row[2]}) : ")
-                        duree: str = input(f"Durée HH-MM-SS ({row[3]}) : ")
+                        duree: str = input(f"Durée HH:MM:SS ({row[3]}) : ")
                         try:
-                            h: int = int(duree.split("-")[0])
-                            m: int = int(duree.split("-")[1])
-                            s: int = int(duree.split("-")[2])
+                            h: int = int(duree.split(":")[0])
+                            m: int = int(duree.split(":")[1])
+                            s: int = int(duree.split(":")[2])
                             duree: datetime.time = datetime.time(h, m, s)
                         except Exception:
                             duree: datetime.time = row[3]
@@ -621,7 +697,7 @@ def menu_playlists():
                 except Exception:
                     print("Saisie invalide, veuilliez recommencer.")
             case "5":
-                id_playlist: str = input("ID : ")
+                id_playlist: str = input("ID playlist : ")
                 try:
                     id_playlist: int = int(id_playlist)
                     row = select_playlist(id_playlist=id_playlist)
@@ -643,7 +719,31 @@ def menu_playlists():
                 except Exception:
                     print("Saisie invalide, veuilliez recommencer.")
             case "6":
-                pass  # Vider
+                id_playlist: str = input("ID playlist : ")
+                try:
+                    id_playlist: int = int(id_playlist)
+                    row = select_playlist(id_playlist=id_playlist)
+                    if row:
+                        id_chanson: str = input("ID chanson : ")
+                        try:
+                            id_chanson: int = int(id_chanson)
+                            row = select_playlist_chanson(
+                                id_playlist=id_playlist, id_chanson=id_chanson
+                            )
+                            if row:
+                                delete_playlist_chanson(
+                                    id_playlist=id_playlist, id_chanson=id_chanson
+                                )
+                            else:
+                                print(
+                                    f"Aucune chanson n'a l'id {id_chanson} dans cette playlist."
+                                )
+                        except Exception:
+                            print("Saisie invalide, veuilliez recommencer.")
+                    else:
+                        print(f"Aucune playlist n'a l'id {id_playlist}.")
+                except Exception:
+                    print("Saisie invalide, veuilliez recommencer.")
             case "0":
                 break
             case _:
@@ -669,6 +769,7 @@ def menu_main():
 
 def main() -> None:
     init_db()
+    insert_test_values()
     menu_main()
 
 

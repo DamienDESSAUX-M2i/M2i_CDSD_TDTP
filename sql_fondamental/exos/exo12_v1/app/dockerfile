@@ -5,7 +5,7 @@ WORKDIR /app
 RUN pip install psycopg[binary]
 RUN pip install pydantic[email]
 
-COPY main.py /app/main.py
+COPY app.py /app/app.py
 
 EXPOSE 5000
 

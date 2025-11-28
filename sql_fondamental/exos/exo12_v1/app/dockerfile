@@ -3,7 +3,6 @@ FROM python:latest
 WORKDIR /app
 
 RUN pip install psycopg[binary]
-RUN pip install pydantic[email]
 
 COPY app.py /app/app.py
 

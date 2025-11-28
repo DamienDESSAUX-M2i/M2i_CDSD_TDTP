@@ -1,6 +1,6 @@
 # SQL Fondamental - Exercice 12
 
-Exercice de la formation Concepteur Développeur en Science des Données de M2I.
+Exercice du module SQL de la formation Concepteur Développeur en Science des Données de M2I.
 
 ## Récupération du projet
 
@@ -22,15 +22,17 @@ docker compose up -d
 
 Trois conteneurs `sql_fondamental_exo12_pgdb`, `sql_fondamental_exo12_pgadmin` et `sql_fondamental_exo12_app`, deux networks `sql_fondamental_exo12_db_network` et `sql_fondamental_exo12_app_network` et deux volumes `sql_fondamental_exo12_v_pgdb` et `sql_fondamental_exo12_v_pgadmin` seront créées.
 
-## Commandes pour exécuter les conteneurs.
+## Commande pour exécuter les conteneurs.
 
-Une fois les conteneurs `sql_fondamental_exo12_pgdb`, `sql_fondamental_exo12_pgadmin` et `sql_fondamental_exo12_app` construits, vous pouvez éxécutez le conteneur `sql_fondamental_exo12_app` avec les commandes :
+Une fois les conteneurs `sql_fondamental_exo12_pgdb`, `sql_fondamental_exo12_pgadmin` et `sql_fondamental_exo12_app` construits, vous pouvez éxécutez le conteneur `sql_fondamental_exo12_app` avec la commande :
 
 ```bash
 docker exec -it app python app.py
 ```
 
 ## Utilisation de l'application
+
+Pour toutes les tables, les ids sont des nombres entiers positifs.
 
 ### Menu principal
 

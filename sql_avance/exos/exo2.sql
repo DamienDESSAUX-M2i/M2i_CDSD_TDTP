@@ -8,6 +8,7 @@
 CREATE OR REPLACE VIEW v_orders_infos AS
 SELECT
     o.order_id,
+    c.customer_id,
     c.full_name AS customer_full_name,
     o.order_date,
     o.status,
@@ -15,12 +16,12 @@ SELECT
 FROM order_items AS oi
 INNER JOIN orders AS o ON oi.order_id = o .order_id
 INNER JOIN customers AS c ON o.customer_id = c.customer_id
-GROUP BY o.order_id, customer_full_name;
+GROUP BY o.order_id, customer_id;
 
 SELECT *
 FROM v_orders_infos
 WHERE status = 'COMPLETED'
-ORDER BY order_date;
+ORDER BY order_date, order_id;
 
 -- 2. Statistiques de ventes par jour
 -- Le service de reporting a besoin d’un tableau de bord quotidien indiquant, pour chaque jour :
@@ -67,6 +68,7 @@ CREATE MATERIALIZED VIEW mv_customers_completed AS
 SELECT
     c.customer_id,
     c.full_name,
+    c.city,
     COUNT(o.order_id) AS nd_orders,
     SUM(oi.quantity * oi.unit_price) AS total_amout
 FROM order_items AS oi

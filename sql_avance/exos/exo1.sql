@@ -25,7 +25,9 @@ ORDER BY artist_name, track_title;
 CREATE OR REPLACE VIEW v_users_france_prenium AS
 SELECT
     user_id,
-    username
+    username,
+    country,
+    subscription
 FROM users
 WHERE country = 'France' AND subscription = 'Premium';
 
@@ -46,8 +48,11 @@ SELECT
     u.user_id,
     u.username,
     u.country AS user_country,
+    t.track_id,
     t.title AS track_name,
+    a.artist_id,
     a.name AS artist_name,
+    l.listening_id,
     l.listened_at,
     l.seconds_played
 FROM listenings AS l
@@ -68,7 +73,7 @@ WHERE user_country = 'France';
 
 DROP MATERIALIZED VIEW IF EXISTS mv_artists_stats;
 
-CREATE MATERIALIZED VIEW mv_artists_stats AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS mv_artists_stats AS
 SELECT
     a.artist_id,
     a.name AS artist_name,

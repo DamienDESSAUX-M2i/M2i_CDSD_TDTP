@@ -19,6 +19,12 @@ source ./.venv/Sripts/activate
 ./.venv/Sripts/activate
 ```
 
+Changement de la police d'exécution sous Windows :
+
+```shell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+```
+
 ## Installation package
 
 **Packages ETL**

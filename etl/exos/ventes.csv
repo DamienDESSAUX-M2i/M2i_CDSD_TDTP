@@ -1,0 +1,6 @@
+date,produit,quantite,prix_unitaire,vendeur
+2024-01-15,Laptop,2,899.99,Alice
+2024-01-15,Souris,5,29.99,Bob
+2024-01-16,Clavier,3,79.99,Alice
+2024-01-16,Laptop,1,899.99,Charlie
+2024-01-17,Souris,10,29.99,Alice

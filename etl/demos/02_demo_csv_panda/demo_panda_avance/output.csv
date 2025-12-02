@@ -1,0 +1,15 @@
+nom,age
+Dupont,35.0
+Martin,17.0
+Durant,42.0
+Bernard,25.0
+Morel,NA
+Petit,19.0
+Noir,60.0
+Dupont,Jean,35.0,Paris
+Martin,Marie,17.0,Lyon
+Durant,Pierre,42.0,Marseille
+Bernard,Luc,25.0,Paris
+Morel,Sophie,,Lille
+Petit,Anne,19.0,
+Noir,Paul,60.0,Lyon

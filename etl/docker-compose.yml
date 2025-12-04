@@ -1,0 +1,9 @@
+name: etl-httpbin
+
+services:
+  httpbin:
+    image: kennethreitz/httpbin
+    container_name: httpbin
+    ports:
+      - 8080:80
+    restart: unless-stopped

@@ -1,0 +1,11 @@
+name,temp,feels_like,humidity,description
+Paris,8.94,6.9,86,ciel dégagé
+Marseille,8.62,7.78,66,couvert
+Lyon,2.29,0.58,97,couvert
+Toulouse,8.99,5.58,81,nuageux
+Nice,0.19,0.19,91,couvert
+Nantes,9.96,8.41,76,pluie modérée
+Montpellier,9.72,8.44,83,ciel dégagé
+Strasbourg,5.03,3.34,87,bruine légère
+Bordeaux,9.97,7.5,86,partiellement nuageux
+Lille,7.5,4.4,92,nuageux

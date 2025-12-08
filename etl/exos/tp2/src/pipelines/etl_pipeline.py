@@ -24,13 +24,7 @@ class ETLPipeline(BaseETLPipeline):
             logger=self.logger, base_url=base_url, api_key=None
         )
         params = {"q": "Lille", "appid": self.api_key, "units": "metric", "lang": "fr"}
-        data = extractor_api.extract("weather", params=params)
-        self.logger.info("Transformation données météo")
-        dict_data = {"name": [], "temp": []}
-        dict_data["name"].append(data["name"])
-        dict_data["temp"].append(data["main"]["temp"])
-        df_meteo = pd.DataFrame(dict_data)
-        self.logger.info("Données météo transformée")
+        data_meteo = extractor_api.extract("weather", params=params)
 
         extractor_csv = CSVExtractor(logger=self.logger)
         df_ventes = extractor_csv.extract(
@@ -42,12 +36,20 @@ class ETLPipeline(BaseETLPipeline):
             filepath=self.dir_path / self.config["json_produits"]["path"]
         )
 
-        return (df_meteo, df_ventes, df_produits)
+        return (data_meteo, df_ventes, df_produits)
 
     def _transform(self, data: pd.DataFrame) -> pd.DataFrame:
         """Nettoie, valide et enrichit les données issues de l'API."""
-        df_meteo, df_ventes, df_produits = data
+        data_meteo, df_ventes, df_produits = data
 
+        self.logger.info("Transformation données météo")
+        dict_data = {"name": [], "temp": []}
+        dict_data["name"].append(data_meteo["name"])
+        dict_data["temp"].append(data_meteo["main"]["temp"])
+        df_meteo = pd.DataFrame(dict_data)
+        self.logger.info("Données météo transformée")
+
+        self.logger.info("Transformation données ventes et produits")
         df_merge = pd.merge(df_ventes, df_produits, how="inner", on="produit_id")
         transformer = DataTransformer(logger=self.logger)
         df_clean = transformer.clean(df_merge)
@@ -71,7 +73,9 @@ class ETLPipeline(BaseETLPipeline):
             return df
 
         df_enriched: pd.DataFrame = transformer.enrich(df_clean, add_total_amout)
+        self.logger.info("Données ventes et produits transformées")
 
+        self.logger.info("Création de la table d'aggrégation produit")
         df_agg_produit = (
             df_enriched.groupby("nom")
             .agg({"quantite": "sum", "montant_total": "sum"})
@@ -82,6 +86,7 @@ class ETLPipeline(BaseETLPipeline):
             .sort_values("total_vente", ascending=False)
         )
 
+        self.logger.info("Création de la table d'agrégation catégorie")
         df_agg_categorie = (
             df_enriched.groupby("categorie")
             .agg({"quantite": "sum", "montant_total": "sum"})

@@ -1,21 +1,13 @@
-database:
-  host: localhost
-  port: 5432
-  name: mydb
+json_produits:
+  path: data/raw/produits.json
 
-api_interne:
-  base_url: https://jsonplaceholder.typicode.com
-  timeout: 30
-  retry: 3
+csv_ventes:
+  path: data/raw/ventes.csv
 
 api_meteo:
   base_url: https://api.openweathermap.org/data/2.5
   timeout: 30
   retry: 3
-
-etl:
-  batch_size: 1000
-  output_format: excel
 
 paths:
   raw_data: data/raw

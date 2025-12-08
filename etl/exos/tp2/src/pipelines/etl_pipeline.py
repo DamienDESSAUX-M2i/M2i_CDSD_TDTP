@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import pandas as pd
-from dotenv import load_dotenv
 from src.extractors.extractors import APIExtractor, CSVExtractor, JSONExtractor
 from src.loaders.loader import DataLoader
 from src.pipelines.base_etl_pipeline import BaseETLPipeline
@@ -25,16 +24,22 @@ class ETLPipeline(BaseETLPipeline):
             logger=self.logger, base_url=base_url, api_key=None
         )
         params = {"q": "Lille", "appid": self.api_key, "units": "metric", "lang": "fr"}
-        df_meteo = extractor_api.extract("weather", params=params)
+        data = extractor_api.extract("weather", params=params)
+        self.logger.info("Transformation données météo")
+        dict_data = {"name": [], "temp": []}
+        dict_data["name"].append(data["name"])
+        dict_data["temp"].append(data["main"]["temp"])
+        df_meteo = pd.DataFrame(dict_data)
+        self.logger.info("Données météo transformée")
 
         extractor_csv = CSVExtractor(logger=self.logger)
         df_ventes = extractor_csv.extract(
-            filepath=self.dir_path / "data" / "raw" / "ventes.csv"
+            filepath=self.dir_path / self.config["csv_ventes"]["path"]
         )
 
         extraction_json = JSONExtractor(logger=self.logger)
         df_produits = extraction_json.extract(
-            filepath=self.dir_path / "data" / "raw" / "products.json"
+            filepath=self.dir_path / self.config["json_produits"]["path"]
         )
 
         return (df_meteo, df_ventes, df_produits)

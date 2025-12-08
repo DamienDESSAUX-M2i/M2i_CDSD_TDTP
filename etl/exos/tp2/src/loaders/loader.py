@@ -1,7 +1,5 @@
 import pandas as pd
 
-# Chargeur de données (vers CSV / Excel)
-
 
 class DataLoader:
     """Chargeur de données"""

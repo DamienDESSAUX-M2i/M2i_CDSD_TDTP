@@ -1,0 +1,18 @@
+database:
+  host: localhost
+  port: 5432
+  name: mydb
+
+api:
+  base_url: https://jsouyfuyfnplaceholder.typicode.com
+  timeout: 30
+  retry: 3
+
+etl:
+  batch_size: 1000
+  output_format: excel
+
+paths:
+  raw_data: data/raw
+  processed_data: data/processed
+  output: data/output

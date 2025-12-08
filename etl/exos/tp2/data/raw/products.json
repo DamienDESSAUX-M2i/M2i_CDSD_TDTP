@@ -1,0 +1,22 @@
+{
+    "1": {
+        "nom": "Souris",
+        "categorie": "Périphérique"
+    },
+    "2":{
+        "nom": "Clavier",
+        "categorie": "Périphérique"
+    },
+    "3":{
+        "nom": "Câble USB",
+        "categorie": "Accessoire"
+    },
+    "4":{
+        "nom": "Webcam",
+        "categorie": "Périphérique"
+    },
+    "5":{
+        "nom": "Casque",
+        "categorie": "Audio"
+    }
+}

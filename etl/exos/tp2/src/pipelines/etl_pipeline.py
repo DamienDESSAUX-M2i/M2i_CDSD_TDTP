@@ -111,7 +111,7 @@ class ETLPipeline(BaseETLPipeline):
         }
 
         output_dir = self.config["paths"]["output"]
-        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(self.dir_path / output_dir, exist_ok=True)
 
         output_file = os.path.join(self.dir_path / output_dir, "posts_api.xlsx")
 

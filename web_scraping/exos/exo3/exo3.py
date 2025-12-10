@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 DIR_PATH = Path(__file__).parent.resolve()
 BASE_URL = "http://books.toscrape.com"
 
+
 # Question 1
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0"
@@ -22,11 +23,11 @@ if response.status_code == 200:
     articles = soup.find_all("article", class_="product_pod")
     dataset: list[dict] = []
     for article in articles:
-        title = article.select("h3 > a")[0].get("title")
+        title = article.find("h3").find("a").get("title")
         price = float(
             re.findall(r"[\d.]+", article.find("p", class_="price_color").get_text())[0]
         )
-        match article.find("p").attrs["class"][1].lower():
+        match article.find("p", class_="star-rating")["class"][1].lower():
             case "one":
                 rating = 1
             case "two":
@@ -37,12 +38,15 @@ if response.status_code == 200:
                 rating = 4
             case "five":
                 rating = 5
+            case _:
+                rating = 0
         available = (
-            True
-            if "in stock" in soup.find("p", class_="instock availability").text.lower()
-            else False
+            "in stock"
+            in soup.find("p", class_="instock availability")
+            .get_text(strip=True)
+            .lower()
         )
-        img_url = urljoin(BASE_URL, soup.select(".image_container > a")[0].get("href"))
+        img_url = urljoin(BASE_URL, article.find("img")["src"])
         dataset.append(
             {
                 "title": title,
@@ -57,9 +61,12 @@ if response.status_code == 200:
     df = pd.DataFrame(dataset)
 
     # Question 4
-    avg_price = df["price"].mean()
-    max_price = df.nlargest(n=1, columns="price")
-    max_price = df.nsmallest(n=1, columns="price")
+    avg_price = df["price"].mean().round(2)
+    print("Prix moyenne : ", avg_price)
+    max_price = df["price"].max()
+    print("Prix maximum : ", max_price)
+    min_price = df["price"].min()
+    print("Prix minimum : ", min_price)
     group_rating = (
         df.groupby("rating")
         .mean("price")
@@ -69,7 +76,16 @@ if response.status_code == 200:
         .sort_values("rating", ascending=True)
         .drop("available", axis=1)
     )
+    print("Prix moyen par rang :\n", group_rating)
 
     # Question 5
     csv_path = DIR_PATH / "exo3.csv"
     df.to_csv(path_or_buf=csv_path, index=False)
+
+    # Bonus
+    response_img = requests.get(
+        url=df.nlargest(n=1, columns="price")["img_url"].iloc[0], headers=headers
+    )
+    save_path = DIR_PATH / "img.jpg"
+    with open(save_path, "wb") as img:
+        img.write(response_img.content)

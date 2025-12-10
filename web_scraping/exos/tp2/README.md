@@ -1,6 +1,6 @@
 # TP 2 - Web Scraping
 
-Ce TP a pour objectif de scraper plusieurs pages du cite "http://quotes.toscrape.com".
+Ce TP a pour objectif de scraper plusieurs pages du site "http://quotes.toscrape.com".
 
 ## Structure du Projet
 
@@ -24,7 +24,7 @@ Ce TP a pour objectif de scraper plusieurs pages du cite "http://quotes.toscrape
 Récupérer le TP en clonant le ripository GitHub :
 
 ```bash
-git clone https://github.com/DamienDESSAUX-M2i/M2i_CDSD_TDTP/tree/main/web_scraping/exos/tp2
+git clone https://github.com/DamienDESSAUX-M2i/M2i_CDSD_TDTP.git
 ```
 
 Installer les bilbliothèques :
@@ -33,7 +33,7 @@ Installer les bilbliothèques :
 pip install requests urllib beautifulsoup4 lxml pandas
 ```
 
-Lancer le TP :
+Placez vous dans le dossier `M2i_CDSD_TDTP/web_scraping/exos/tp2/`, puis lancer le TP avec la commande :
 
 ```bash
 python main.py

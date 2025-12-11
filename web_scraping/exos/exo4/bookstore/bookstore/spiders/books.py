@@ -20,6 +20,25 @@ class BooksSpider(scrapy.Spider):
 
     custom_settings = {
         "DEPTH_LIMIT": 2,
+        "FEED_EXPORT_FIELDS": ["title", "price", "rating", "availability"],
+        "FEEDS": {
+            "outputs/books.jsonl": {
+                "format": "jsonlines",
+                "encoding": "utf8",
+                "overwrite": True,
+            },
+            "outputs/books.json": {
+                "format": "json",
+                "encoding": "utf8",
+                "overwrite": True,
+                "indent": 4,
+            },
+            "outputs/books.csv": {
+                "format": "csv",
+                "encoding": "utf8",
+                "overwrite": True,
+            },
+        },
     }
 
     def parse(self, response):
@@ -28,15 +47,13 @@ class BooksSpider(scrapy.Spider):
             item["title"] = article.css("h3 a::attr(title)").get()
             item["price"] = re.findall(
                 r"[\d.]+", article.css("p.price_color::text").get()
-            )
+            )[0]
             item["rating"] = map_rating.get(
                 article.css("p.star-rating::attr(class)").get().split()[1], None
             )
-            item["availability"] = any(
-                [
-                    "in stock" in text.lower()
-                    for text in article.css("p.instock.availability::text").getall()
-                ]
+            item["availability"] = (
+                "in stock"
+                in "".join(article.css("p.instock.availability::text").getall()).lower()
             )
             yield item
 

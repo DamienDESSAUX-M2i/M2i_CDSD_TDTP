@@ -11,14 +11,6 @@ class BooksSpider(scrapy.Spider):
     custom_settings = {
         "DEPTH_LIMIT": 3,
         "CLOSESPIDER_PAGECOUNT": 20,
-        "FEEDS": {
-            "outputs/books.json": {
-                "format": "json",
-                "encoding": "utf8",
-                "overwrite": True,
-                "indent": 4,
-            },
-        },
     }
 
     def parse(self, response):

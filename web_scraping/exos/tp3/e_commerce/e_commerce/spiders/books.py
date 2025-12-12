@@ -8,11 +8,6 @@ class BooksSpider(scrapy.Spider):
     allowed_domains = ["books.toscrape.com"]
     start_urls = ["https://books.toscrape.com"]
 
-    custom_settings = {
-        "DEPTH_LIMIT": 3,
-        "CLOSESPIDER_PAGECOUNT": 20,
-    }
-
     def parse(self, response):
         categories = response.css("ul.nav.nav-list li ul li")
         for category in categories:

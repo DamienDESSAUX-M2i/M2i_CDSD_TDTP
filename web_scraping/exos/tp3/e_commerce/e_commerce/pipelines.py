@@ -27,7 +27,6 @@ class ExcelWriterPipeline:
 
     def close_spider(self, spider):
         df_books = pd.DataFrame(self.items)
-        print(df_books)
         df_categories = (
             df_books.groupby("category", as_index=False)
             .agg(
@@ -37,7 +36,6 @@ class ExcelWriterPipeline:
             )
             .sort_values(by="category", ascending=True)
         )
-        print(df_categories)
         df_books.to_excel(self.writer, sheet_name="Books", index=False)
         df_categories.to_excel(self.writer, sheet_name="Categories", index=False)
         self.writer.close()

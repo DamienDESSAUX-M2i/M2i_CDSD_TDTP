@@ -1,5 +1,6 @@
 import json
 import re
+from pathlib import Path
 
 import pandas as pd
 from itemadapter import ItemAdapter
@@ -8,7 +9,11 @@ from scrapy.exceptions import DropItem
 
 class JsonWriterPipeline:
     def open_spider(self, spider):
-        self.file = open("output/books.json", "w", encoding="utf-8")
+        output_dir_path = Path("output")
+        if not output_dir_path.exists():
+            output_dir_path.mkdir()
+        json_path = output_dir_path / "books.json"
+        self.file = open(json_path, "w", encoding="utf-8")
         self.items = []
 
     def close_spider(self, spider):
@@ -22,7 +27,11 @@ class JsonWriterPipeline:
 
 class ExcelWriterPipeline:
     def open_spider(self, spider):
-        self.writer = pd.ExcelWriter("output/books.xlsx", engine="openpyxl")
+        output_dir_path = Path("output")
+        if not output_dir_path.exists():
+            output_dir_path.mkdir()
+        excel_path = output_dir_path / "books.xlsx"
+        self.writer = pd.ExcelWriter(excel_path, engine="openpyxl")
         self.items = []
 
     def close_spider(self, spider):

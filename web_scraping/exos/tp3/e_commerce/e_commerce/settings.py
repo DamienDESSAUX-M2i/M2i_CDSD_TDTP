@@ -30,7 +30,7 @@ ITEM_PIPELINES = {
 DOWNLOADER_MIDDLEWARES = {"e_commerce.middlewares.RandomUserAgentMiddleware": 100}
 
 LOG_LEVEL = "INFO"
-LOG_FILE = "logs/e_commerce.log"
+LOG_FILE = "e_commerce.log"
 
 # DEPTH_LIMIT = 2
 # CLOSESPIDER_PAGECOUNT = 20

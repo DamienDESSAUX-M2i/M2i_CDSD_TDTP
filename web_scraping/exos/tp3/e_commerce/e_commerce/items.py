@@ -1,12 +1,13 @@
-# Define here the models for your scraped items
-#
-# See documentation in:
-# https://docs.scrapy.org/en/latest/topics/items.html
-
 import scrapy
 
 
-class ECommerceItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class BookItem(scrapy.Item):
+    category = scrapy.Field()
+    url = scrapy.Field()
+    title = scrapy.Field()
+    price = scrapy.Field()
+    rating = scrapy.Field()
+    description = scrapy.Field()
+    image_url = scrapy.Field()
+    nb_reviews = scrapy.Field()
+    availability = scrapy.Field()

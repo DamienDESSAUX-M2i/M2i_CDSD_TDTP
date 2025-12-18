@@ -61,7 +61,8 @@ Vous êtes Data Engineer dans une startup de veille concurrentielle. Votre missi
 
 ### Justification de l'Architecture Hybride
 
-- A Compléter
+- MongoDB propose un stockage orienté document au format BSON. Il sera adapté aux données qui peuvent être mises sous forme d'un fichier JSON. De plus, il propose une indexation qui accélère la lecture des données.
+- MinIO propose quand à lui un stockage objet. Il propose l'ajout de métadonnées.
 
 ---
 
@@ -74,9 +75,25 @@ Avant de coder, explorez manuellement le site : https://webscraper.io/test-sites
 **Questions à résoudre :**
 
 1. Quelles sont les catégories de produits disponibles ?
+
+-> Les catégories de produits disponibles sont `Computer` et `Phone`.
+
 2. Comment fonctionne la pagination ?
+
+-> Un lien permet de passer à la page suivant. Son sélecteur CSS est `a.page-link.next`.
+
 3. Quelles informations sont disponibles sur la page liste vs page détail ?
+
+-> Les informations principales de la page liste sont : Le nom de la catégorie et les articles vendus. Chaque article contient les informations suivantes : image, nom, prix, description, note, et nombre d'avis.
+
+Les informations principales de la page détaillées sont :
+- Pour les laptops : image, nom, prix, description, note, nombre d'avis et une sélection HDD.
+- Pour les tablets : image, nom, prix, not, nombre d'avis, une sélection couleur et une sélection HDD
+- Pour les Touch : image, prix, description, note, nombre d'avis et une sélection couleur.
+
 4. Où se trouvent les images des produits ?
+
+-> Tous les produits ont la même image accessible par le lien : https://webscraper.io/images/test-sites/e-commerce/items/cart2.png.
 
 ### 1.2 Analyse de la structure HTML
 
@@ -86,14 +103,16 @@ Avant de coder, explorez manuellement le site : https://webscraper.io/test-sites
 
 Complétez le tableau suivant en inspectant le HTML :
 
+Je me place sur une page produit.
+
 | Donnée | Sélecteur CSS | Exemple de valeur |
 |--------|---------------|-------------------|
-| Titre du produit |  | |
-| Prix | | |
-| Description | | |
-| Rating (étoiles) | | |
-| URL de l'image | | |
-| Lien vers détails | | |
+| Titre du produit | h4 a::attr(title) | Asus VivoBook X441NA-GA190 |
+| Prix | h4 span::text | $295.99 |
+| Description | p.description::text | Asus VivoBook X441NA-GA190 Chocolate Black, 14", Celeron N3450, 4GB, 128GB SSD, Endless OS, ENG kbd |
+| Rating (étoiles) | p.review-count + p::attr(data-rating) | 2 |
+| URL de l'image | img.img-fluid::attr(src) | /images/test-sites/e-commerce/items/cart2.png |
+| Lien vers détails | h4 a::attr(src) | /test-sites/e-commerce/static/product/31 |
 
 ---
 
@@ -103,23 +122,120 @@ Complétez le tableau suivant en inspectant le HTML :
 
 Créez l'arborescence du projet.
 
+```
+│   docker-compose.yml
+│   main.py
+│   requirements.txt
+│   
+├───config
+│       __init__.py
+│       settings.py
+│       
+└───src
+    │   pipeline.py
+    │   scrapper.py
+    │   __init__.py
+    │   
+    └───storage
+            minio_client.py
+            mongo_client.py
+            __init__.py
+```
 
 ### 2.2 Docker Compose
 
 Créez le fichier `docker-compose.yml` pour le projet.
 
+```yaml
+name: s3_mino
 
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: workshop-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  mongodb:
+    image: mongo:7.0
+    container_name: workshop-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: scraping_db
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: workshop-mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin123
+      ME_CONFIG_MONGODB_URL: mongodb://admin:admin123@mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
+    depends_on:
+      - mongodb
+
+volumes:
+  minio_data:
+  mongo_data:
+```
 
 ### 2.3 Dépendances Python
 
 Créez le fichier `requirements.txt`.
 
+```
+# Web Scraping
+requests==2.31.0
+beautifulsoup4==4.12.3
+# lxml==5.1.0
+fake-useragent==1.4.0
+
+# Stockage
+minio==7.2.3
+pymongo==4.6.1
+
+# Utilitaires
+python-dotenv==1.0.1
+structlog==24.1.0
+tenacity==8.2.3
+tqdm==4.66.1
+
+# Traitement de données
+pandas==2.2.0
+numpy==1.26.4
+```
 
 
 ### 2.4 Configuration
 
 Créez les fichiers de configuration.
 
+Création des classes `MinIOConfig`, `MongoDBConfig` et `ScraperConfig`.
+Le fichier `config.__init__.py` permet d'importer une instance des classes précédentes : `minio_config`, `mongo_config` et `scraper_config`.
 
 ---
 
@@ -127,9 +243,15 @@ Créez les fichiers de configuration.
 
 ### 3.1 Client MinIO
 
+Création de la classe `MinIOStorage` dans le fichier `src/storage/minio_client.py` :
+- J'ai copié le fichier de la démo.
+
 ### 3.2 Client MongoDB
 
-
+Création de la classe `MongoStorage` dans le fichier `src/storage/mongo_client.py` :
+- Modification du fichier de la démo :
+  - modification du nom des collections : produits, stats, logs
+  - modification des méthodes associées
 
 ---
 
@@ -137,6 +259,15 @@ Créez les fichiers de configuration.
 
 ### 4.1 Scraper principal
 
+Définition du modèle `Product` :
+- title: str
+- price: float
+- description: str
+- rating: int
+- image_url: str
+- details_url: str
+
+Création de la classe `ProductsScraper`. J'ai modifié le fichié démo.
 
 ---
 

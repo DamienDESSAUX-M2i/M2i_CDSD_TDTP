@@ -1,0 +1,119 @@
+import hashlib
+import logging
+from pathlib import Path
+from typing import Any, Literal
+
+import pandas as pd
+import pymongo
+
+DIR_PATH = Path(__file__).parent.resolve()
+URI = "mongodb://admin:admin123@localhost:27017"
+
+
+def setup_logger(
+    name, log_file: Path = None, level: Literal[10, 20, 30, 40, 50] = logging.INFO
+):
+    """Set up logger."""
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    if log_file:
+        file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+    return logger
+
+
+class MongoDBExtractor:
+    def __init__(self, logger: logging.Logger):
+        self.logger = logger
+
+    def extract(self, db_name: str, collection_name: str) -> list[Any]:
+        try:
+            self.logger.info(f"Connexion: {URI}")
+            with pymongo.MongoClient(URI) as client:
+                self.logger.info("\tSuccess")
+                self.logger.info(f"Extraction : {db_name}/{collection_name}")
+                db = client.get_database(db_name)
+                collection = db.get_collection(collection_name)
+                cursor = collection.find()
+                self.logger.info("\tSuccess")
+                return [doc for doc in cursor]
+        except Exception as e:
+            self.logger.error(f"MongoDB extraction error : {e}")
+            raise
+
+
+class PipelineCustomers:
+    def __init__(self, logger: logging.Logger):
+        self.logger = logger
+        self.extractor = MongoDBExtractor(logger=self.logger)
+
+    def run(self):
+        try:
+            self.logger.info("Pipeline customers start")
+            self.logger.info("[1/3] Extraction")
+            data_extracted = self._extract()
+            self.logger.info("[2/3] Transformation")
+            data_transformed = self._transform(data_extracted)
+            self.logger.info("[3/3] Loading")
+            self._load(data_transformed)
+            self.logger.info("Pipeline customers end")
+        except Exception as e:
+            self.logger.error(f"Pipeline customers error : {e}")
+
+    def _extract(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self.extractor.extract(db_name="bronze_db", collection_name="customers")
+        )
+
+    def _transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        self.logger.info("\tDrop duplicates")
+        df.drop_duplicates()
+
+        self.logger.info("\tFill NAN")
+        df["first_name"] = df["first_name"].fillna(value="Unknown")
+        df["last_name"] = df["last_name"].fillna(value="Unknown")
+        df["email"] = df["email"].fillna(value="Unknown")
+        df["phone"] = df["phone"].fillna(value="Unknown")
+        df["age"] = df["age"].fillna(value=0)
+        df["country"] = df["country"].fillna(value="Unknown")
+        df["city"] = df["city"].fillna(value="Unknown")
+        df["gender"] = df["gender"].fillna(value="Unknown")
+        df["marketing_consent"] = df["marketing_consent"].fillna(value="Unknown")
+
+        self.logger.info("\tConcat first_name and last_name")
+        df["full_name"] = df[["first_name", "last_name"]].agg("_".join, axis=1)
+
+        self.logger.info("\tHash email")
+        df["email"] = df["email"].apply(lambda x: hashlib.md5(x.encode()).hexdigest())
+
+        self.logger.info("\tHash phone")
+        df["phone"] = df["phone"].apply(lambda x: hashlib.md5(x.encode()).hexdigest())
+
+        return df
+
+    def _load(self, df: pd.DataFrame) -> None:
+        pass
+
+
+def main():
+    logger_path = DIR_PATH / "app.log"
+    logger = setup_logger(name="app", log_file=logger_path)
+    pipeline_customers = PipelineCustomers(logger=logger)
+    pipeline_customers.run()
+
+
+if __name__ == "__main__":
+    main()

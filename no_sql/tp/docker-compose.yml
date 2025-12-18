@@ -1,0 +1,47 @@
+name: no_sql_tp
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - data_network
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_USER: analyst
+      POSTGRES_PASSWORD: analyst123
+      POSTGRES_DB: gold_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - data_network
+
+  bronze_generator:
+    build: ./bronze_generator
+    container_name: bronze_generator
+    depends_on:
+      - mongodb
+    environment:
+      MONGO_URI: mongodb://admin:admin123@mongodb:27017/
+    networks:
+      - data_network
+
+volumes:
+  mongodb_data:
+  postgres_data:
+
+networks:
+  data_network:
+    driver: bridge

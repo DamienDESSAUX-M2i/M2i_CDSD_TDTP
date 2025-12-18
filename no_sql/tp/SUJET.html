@@ -1,0 +1,175 @@
+
+		<head>
+			<style type="text/css" media="screen">
+				body,html{font-family:var(--markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", system-ui, "Ubuntu", "Droid Sans", sans-serif);font-size:var(--markdown-font-size,14px);padding:0 26px;line-height:var(--markdown-line-height,22px);word-wrap:break-word}body{padding-top:1em}h1,h2,h3,h4,h5,h6,ol,p,pre,ul{margin-top:0}h2,h3,h4,h5,h6{font-weight:400;margin-bottom:.2em}img{max-width:100%;max-height:100%}a{text-decoration:none}a:hover{text-decoration:underline}a:focus,input:focus,select:focus,textarea:focus{outline:1px solid -webkit-focus-ring-color;outline-offset:-1px}p{margin-bottom:.7em}ol,ul{margin-bottom:.7em}hr{border:0;height:2px;border-bottom:2px solid}h1{padding-bottom:.3em;line-height:1.2;border-bottom-width:1px;border-bottom-style:solid;font-weight:400}table{border-collapse:collapse}th{text-align:left;border-bottom:1px solid}td,th{padding:5px 10px}table>tbody>tr+tr>td{border-top:1px solid}blockquote{margin:0 7px 0 5px;padding:0 16px 0 10px;border-left-width:5px;border-left-style:solid}code{font-family:var(--vscode-editor-font-family, "SF Mono", Monaco, Menlo, Consolas, "Ubuntu Mono", "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace);font-size:1em;line-height:1.357em}body.wordWrap pre{white-space:pre-wrap}pre.hljs code>div,pre:not(.hljs){padding:16px;border-radius:3px;overflow:auto}pre code{color:var(--vscode-editor-foreground);tab-size:4}
+			</style>
+		</head>
+		<body>
+			<h1 id="projet-data-analyst---pipeline-marketing">Projet Data Analyst - Pipeline Marketing</h1>
+<h2 id="contexte">Contexte</h2>
+<p>Vous êtes data analyst dans une entreprise de e-commerce. Les données marketing sont collectées de différentes sources et arrivent dans une base de données brute avec de nombreuses erreurs et valeurs manquantes.</p>
+<p>Votre mission : construire un pipeline de données pour nettoyer et analyser ces informations.</p>
+<hr>
+<h2 id="architecture">Architecture</h2>
+<p>Le projet suit une architecture <strong>Medallion</strong> en 3 couches :</p>
+<ul>
+<li><strong>Bronze</strong> : Données brutes (déjà fourni)</li>
+<li><strong>Silver</strong> : À construire - Nettoyage et anonymisation</li>
+<li><strong>Gold</strong> : À construire - Agrégations et analytics</li>
+</ul>
+<hr>
+<h2 id="données-fournies-bronze">Données Fournies (Bronze)</h2>
+<p>La base MongoDB <code>bronze_db</code> contient 3 collections :</p>
+<h3 id="customers-5000-documents">customers (5000 documents)</h3>
+<pre><code class="language-json">{
+  &quot;customer_id&quot;: &quot;CUST12345&quot;,
+  &quot;first_name&quot;: &quot;Jean&quot;,          // parfois absent
+  &quot;last_name&quot;: &quot;Dupont&quot;,          // parfois absent
+  &quot;email&quot;: &quot;jean@email.com&quot;,      // parfois absent
+  &quot;phone&quot;: &quot;+33612345678&quot;,        // parfois absent
+  &quot;age&quot;: 35,                      // parfois absent
+  &quot;country&quot;: &quot;France&quot;,            // parfois absent
+  &quot;city&quot;: &quot;Paris&quot;,                // parfois absent
+  &quot;gender&quot;: &quot;M&quot;,                  // parfois absent
+  &quot;marketing_consent&quot;: true       // parfois absent
+}
+</code></pre>
+<h3 id="transactions-15000-documents">transactions (15000 documents)</h3>
+<pre><code class="language-json">{
+  &quot;transaction_id&quot;: &quot;TXN98765&quot;,
+  &quot;customer_id&quot;: &quot;CUST12345&quot;,     // parfois absent
+  &quot;product&quot;: &quot;Laptop&quot;,            // parfois absent
+  &quot;amount&quot;: 999.99,               // parfois absent ou = 0
+  &quot;quantity&quot;: 1,                  // parfois absent
+  &quot;payment_method&quot;: &quot;Card&quot;,       // parfois absent
+  &quot;discount_applied&quot;: 50.00,      // parfois absent
+  &quot;shipping_cost&quot;: 10.00,         // parfois absent
+  &quot;timestamp&quot;: ISODate(&quot;...&quot;)
+}
+</code></pre>
+<h3 id="campaigns-200-documents">campaigns (200 documents)</h3>
+<pre><code class="language-json">{
+  &quot;campaign_id&quot;: &quot;CAMP123&quot;,
+  &quot;campaign_name&quot;: &quot;Summer Sale&quot;,  // parfois absent
+  &quot;campaign_type&quot;: &quot;Email&quot;,        // parfois absent
+  &quot;budget&quot;: 10000.00,              // parfois absent
+  &quot;spend&quot;: 8500.00,                // parfois absent
+  &quot;impressions&quot;: 100000,           // parfois absent
+  &quot;clicks&quot;: 5000,                  // parfois absent
+  &quot;conversions&quot;: 250,              // parfois absent
+  &quot;start_date&quot;: ISODate(&quot;...&quot;)
+}
+</code></pre>
+<hr>
+<h2 id="mission-1--construire-la-couche-silver">Mission 1 : Construire la couche SILVER</h2>
+<h3 id="objectif">Objectif</h3>
+<p>Créer un script Python qui lit les données Bronze, les nettoie et les enregistre dans MongoDB <code>silver_db</code>.</p>
+<h3 id="traitements-à-effectuer">Traitements à effectuer</h3>
+<p><strong>Pour les clients :</strong></p>
+<ul>
+<li>Créer un champ <code>full_name</code> à partir de <code>first_name</code> et <code>last_name</code></li>
+<li>Anonymiser <code>email</code> et <code>phone</code> (hash MD5)</li>
+<li>Remplacer les valeurs manquantes par des valeurs par défaut appropriées</li>
+</ul>
+<p><strong>Pour les transactions :</strong></p>
+<ul>
+<li>Calculer <code>total_amount = amount - discount_applied + shipping_cost</code></li>
+<li>Gérer les valeurs manquantes</li>
+</ul>
+<p><strong>Pour les campagnes :</strong></p>
+<ul>
+<li>Calculer les KPIs marketing :<ul>
+<li><code>CTR = (clicks / impressions) * 100</code></li>
+<li><code>conversion_rate = (conversions / clicks) * 100</code></li>
+<li><code>CPC = spend / clicks</code></li>
+<li><code>CPA = spend / conversions</code></li>
+<li><code>ROI = ((budget - spend) / budget) * 100</code></li>
+</ul>
+</li>
+<li>Gérer les divisions par zéro</li>
+</ul>
+<h3 id="livrable">Livrable</h3>
+<p>Fichier <code>processor.py</code> qui traite les 3 collections et les enregistre dans <code>silver_db</code>.</p>
+<hr>
+<h2 id="mission-2--construire-la-couche-gold">Mission 2 : Construire la couche GOLD</h2>
+<h3 id="objectif-1">Objectif</h3>
+<p>Créer un script Python qui agrège les données Silver et les exporte vers PostgreSQL <code>gold_db</code>.</p>
+<h3 id="tables-à-créer">Tables à créer</h3>
+<p><strong>1. customer_metrics</strong>
+Pour chaque client ayant au moins 1 transaction :</p>
+<ul>
+<li><code>customer_id</code>, <code>full_name</code>, <code>country</code>, <code>city</code></li>
+<li><code>total_transactions</code> : nombre d&#39;achats</li>
+<li><code>total_spent</code> : somme des montants</li>
+<li><code>avg_transaction_amount</code> : panier moyen</li>
+<li><code>first_purchase_date</code>, <code>last_purchase_date</code></li>
+</ul>
+<p><strong>2. product_performance</strong>
+Pour chaque produit :</p>
+<ul>
+<li><code>product</code></li>
+<li><code>total_sales</code> : nombre de ventes</li>
+<li><code>total_revenue</code> : chiffre d&#39;affaires</li>
+<li><code>avg_price</code> : prix moyen</li>
+<li><code>unique_customers</code> : nombre de clients uniques</li>
+</ul>
+<p><strong>3. campaign_performance</strong>
+Pour chaque campagne :</p>
+<ul>
+<li><code>campaign_id</code>, <code>campaign_name</code>, <code>campaign_type</code></li>
+<li><code>total_impressions</code>, <code>total_clicks</code>, <code>total_conversions</code></li>
+<li><code>avg_ctr</code>, <code>avg_conversion_rate</code>, <code>avg_cpc</code>, <code>avg_cpa</code></li>
+<li><code>roi</code>, <code>status</code></li>
+</ul>
+<p><strong>4. monthly_revenue</strong>
+Revenus agrégés par mois :</p>
+<ul>
+<li><code>month</code> (DATE)</li>
+<li><code>total_revenue</code>, <code>total_transactions</code></li>
+<li><code>unique_customers</code>, <code>avg_transaction_value</code></li>
+</ul>
+<p><strong>5. country_statistics</strong>
+Statistiques par pays :</p>
+<ul>
+<li><code>country</code></li>
+<li><code>total_customers</code>, <code>total_revenue</code></li>
+<li><code>avg_customer_value</code></li>
+<li><code>marketing_consent_rate</code> (% de clients ayant donné leur consentement)</li>
+</ul>
+<h3 id="livrable-1">Livrable</h3>
+<p>Fichier <code>aggregator.py</code> qui crée les tables PostgreSQL et insère les données agrégées.</p>
+<hr>
+<h2 id="environnement-technique">Environnement Technique</h2>
+<p><strong>Bases de données fournies :</strong></p>
+<ul>
+<li>MongoDB : <code>mongodb://admin:admin123@localhost:27017</code><ul>
+<li>Base Bronze : <code>bronze_db</code></li>
+<li>Base Silver : <code>silver_db</code> (à créer)</li>
+</ul>
+</li>
+<li>PostgreSQL : <code>postgresql://analyst:analyst123@localhost:5432/gold_db</code><ul>
+<li>Base Gold : <code>gold_db</code> (à créer)</li>
+</ul>
+</li>
+</ul>
+<p><strong>Lancer l&#39;environnement :</strong></p>
+<pre><code class="language-bash">docker-compose up -d
+</code></pre>
+<p><strong>Générer les données Bronze :</strong></p>
+<pre><code class="language-bash">docker-compose up bronze_generator
+</code></pre>
+<hr>
+<h2 id="questions-business-à-résoudre">Questions Business à Résoudre</h2>
+<p>Une fois le pipeline construit, vous devez pouvoir répondre à :</p>
+<ol>
+<li>Qui sont les 10 meilleurs clients ?</li>
+<li>Quel produit génère le plus de revenus ?</li>
+<li>Quelle campagne a le meilleur ROI ?</li>
+<li>Quelle est l&#39;évolution des ventes mois par mois ?</li>
+<li>Quel pays génère le plus de revenus ?</li>
+</ol>
+<p>Écrivez les requêtes SQL nécessaires pour y répondre.</p>
+<hr>
+<p><strong>Bon courage !</strong></p>
+
+		</body>

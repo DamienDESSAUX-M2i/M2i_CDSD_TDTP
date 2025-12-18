@@ -39,7 +39,7 @@ class MongoDBExtractor:
     def __init__(self, logger: logging.Logger):
         self.logger = logger
 
-    def extract(self, db_name: str, collection_name: str) -> list[Any]:
+    def extract(self, db_name: str, collection_name: str) -> list[dict[str, Any]]:
         try:
             self.logger.info(f"Connexion: {URI}")
             with pymongo.MongoClient(URI) as client:
@@ -55,10 +55,33 @@ class MongoDBExtractor:
             raise
 
 
-class PipelineCustomers:
+class MongoDBLoader:
     def __init__(self, logger: logging.Logger):
         self.logger = logger
+
+    def load(
+        self, db_name: str, collection_name: str, data: list[dict[str, Any]]
+    ) -> None:
+        try:
+            self.logger.info(f"Connexion: {URI}")
+            with pymongo.MongoClient(URI) as client:
+                self.logger.info("\tSuccess")
+                self.logger.info(f"Loading : {db_name}/{collection_name}")
+                db = client.get_database(db_name)
+                collection = db.get_collection(collection_name)
+                collection.insert_many(data)
+                self.logger.info(f"\tSuccess: {len(data)} records loaded.")
+        except Exception as e:
+            self.logger.error(f"MongoDB loader error : {e}")
+            raise
+
+
+class PipelineCustomers:
+    def __init__(self, config: dict[str, Any], logger: logging.Logger):
+        self.config = config
+        self.logger = logger
         self.extractor = MongoDBExtractor(logger=self.logger)
+        self.loader = MongoDBLoader(logger=self.logger)
 
     def run(self):
         try:
@@ -75,7 +98,10 @@ class PipelineCustomers:
 
     def _extract(self) -> pd.DataFrame:
         return pd.DataFrame(
-            self.extractor.extract(db_name="bronze_db", collection_name="customers")
+            self.extractor.extract(
+                db_name=self.config["db_bronze"],
+                collection_name=self.config["collection_customers"],
+            )
         )
 
     def _transform(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -95,6 +121,7 @@ class PipelineCustomers:
 
         self.logger.info("\tConcat first_name and last_name")
         df["full_name"] = df[["first_name", "last_name"]].agg("_".join, axis=1)
+        df.drop(columns=["first_name", "last_name"], inplace=True)
 
         self.logger.info("\tHash email")
         df["email"] = df["email"].apply(lambda x: hashlib.md5(x.encode()).hexdigest())
@@ -105,14 +132,83 @@ class PipelineCustomers:
         return df
 
     def _load(self, df: pd.DataFrame) -> None:
-        pass
+        self.loader.load(
+            db_name=self.config["db_silver"],
+            collection_name=self.config["collection_customers"],
+            data=df.to_dict(orient="records"),
+        )
+
+
+class PipelineTransactions:
+    def __init__(self, config: dict[str, Any], logger: logging.Logger):
+        self.config = config
+        self.logger = logger
+        self.extractor = MongoDBExtractor(logger=self.logger)
+        self.loader = MongoDBLoader(logger=self.logger)
+
+    def run(self):
+        try:
+            self.logger.info("Pipeline customers start")
+            self.logger.info("[1/3] Extraction")
+            data_extracted = self._extract()
+            self.logger.info("[2/3] Transformation")
+            data_transformed = self._transform(data_extracted)
+            self.logger.info("[3/3] Loading")
+            self._load(data_transformed)
+            self.logger.info("Pipeline customers end")
+        except Exception as e:
+            self.logger.error(f"Pipeline customers error : {e}")
+
+    def _extract(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self.extractor.extract(
+                db_name=self.config["db_bronze"],
+                collection_name=self.config["collection_transactions"],
+            )
+        )
+
+    def _transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        self.logger.info("\tDrop duplicates")
+        df.drop_duplicates()
+
+        self.logger.info("\tFill NAN")
+        df["customer_id"] = df["customer_id"].fillna(value="Unknown")
+        df["product"] = df["product"].fillna(value="Unknown")
+        df["amount"] = df["amount"].fillna(value=0)
+        df["quantity"] = df["quantity"].fillna(value=0)
+        df["payment_method"] = df["payment_method"].fillna(value="Unknown")
+        df["discount_applied"] = df["discount_applied"].fillna(value=0)
+        df["shipping_cost"] = df["shipping_cost"].fillna(value=0)
+
+        self.logger.info("\tCompute total_amout")
+        df["total_amout"] = (
+            df["quantity"] * df["amount"] * (1 - df["discount_applied"] / 100)
+        )
+
+        return df
+
+    def _load(self, df: pd.DataFrame) -> None:
+        self.loader.load(
+            db_name=self.config["db_silver"],
+            collection_name=self.config["collection_transactions"],
+            data=df.to_dict(orient="records"),
+        )
 
 
 def main():
     logger_path = DIR_PATH / "app.log"
     logger = setup_logger(name="app", log_file=logger_path)
-    pipeline_customers = PipelineCustomers(logger=logger)
-    pipeline_customers.run()
+    config = {
+        "db_bronze": "bronze_db",
+        "db_silver": "silver_db",
+        "collection_customers": "customers",
+        "collection_transactions": "transactions",
+        "collection_campaigns": "campaigns",
+    }
+    # pipeline_customers = PipelineCustomers(config=config, logger=logger)
+    # pipeline_customers.run()
+    # pipeline_transactions = PipelineTransactions(config=config, logger=logger)
+    # pipeline_transactions.run()
 
 
 if __name__ == "__main__":

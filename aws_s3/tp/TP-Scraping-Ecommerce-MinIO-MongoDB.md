@@ -260,6 +260,7 @@ Création de la classe `MongoStorage` dans le fichier `src/storage/mongo_client.
 ### 4.1 Scraper principal
 
 Définition du modèle `Product` :
+- id_product: uuid
 - category: str
 - ub_category: str
 - title: str
@@ -289,16 +290,17 @@ Création de la classe `ProductsPipeline`. Modification de la démo.
 
 1. Combien de produits ont été scrapés ?
 
-->  Total products: 114
-    Total computers: 107
-    Total laptops: 88
-    Total tablets: 19
-    Total phones: 7
-    Total touch: 7
+->  Total products: 147
+        Total computers: 138
+            Total computers/laptops: 117
+            Total computers/tablets: 21
+        Total phones: 9
+            Total phones/touch: 9
 
 2. Quelle est la structure d'un document produit dans MongoDB ?
 
-->  category: str
+->  id_product: uuid
+    category: str
     sub_category: str
     title: str
     price: float | int
@@ -308,6 +310,8 @@ Création de la classe `ProductsPipeline`. Modification de la démo.
     details_url: str
 
 3. Comment sont organisées les images dans MinIO ?
+
+Dans MinIO, le filename des images suis la structure suivante `products_images/category/subcategor/id_produit.jpeg`.
 
 ---
 
@@ -331,39 +335,32 @@ def exercise_2():
     mongo = MongoDBStorage()
     
     # 2.1 Trouvez tous les laptops avec un prix < 500$
-    # TODO
-    cheap_laptops = None
-    
+    cheap_laptops = mongo.get_cheap_laptops()
+
     # 2.2 Trouvez le produit le plus cher de chaque catégorie
     # Indice: utilisez $group avec $max et $first
-    # TODO
-    most_expensive_by_cat = None
-    
+    most_expensive_by_cat = mongo.get_most_expensive_by_cat()
+
     # 2.3 Calculez le prix moyen des produits avec rating >= 4
-    # TODO
-    avg_price_good_rating = None
-    
+    avg_price_good_rating = mongo.get_avg_price_good_rating(rating=4)
+
     # 2.4 Trouvez les produits dont le titre contient "Samsung" ou "Apple"
     # Indice: utilisez $regex ou $in
-    # TODO
-    brand_products = None
-    
+    brand_products = mongo.get_brand_products(text_inside=["Samsung", "Apple"])
+
     # 2.5 Créez un classement des produits par rapport qualité/prix
     # Score = rating / (price / 100)
     # Retournez le top 10
-    # TODO
-    value_ranking = None
-    
+    value_ranking = mongo.get_value_ranking()
+
     # 2.6 Groupez les produits par tranche de prix (0-200, 200-500, 500-1000, 1000+)
     # et comptez le nombre de produits par tranche
-    # TODO
-    price_ranges = None
-    
+    price_ranges = mongo.get_price_ranges()
+
     # 2.7 Trouvez les produits qui ont le même prix (doublons de prix)
     # Indice: $group puis $match sur count > 1
-    # TODO
-    same_price_products = None
-    
+    same_price_products = mongo.get_same_price_products()
+
     mongo.close()
     
     return {
@@ -393,6 +390,146 @@ if __name__ == "__main__":
         else:
             print(result)
 ```
+
+Ajout de méthodes dans le fichier `src/storage/mongo_client.py` pour l'exercice 2.
+
+```python
+    def get_cheap_laptops(self) -> list[dict]:
+        """Trouve les laptops inférieurs à 500€"""
+        return self.find_products(
+            {"sub_category": "laptops", "price": {"$lt": 500}},
+            {"_id": 0, "title": 1, "price": 1},
+            [("price", pymongo.DESCENDING)],
+        )
+
+    def get_most_expensive_by_cat(self) -> list[dict]:
+        """Trouve les produits les plus cher par catégorie"""
+        pipeline = [
+            {
+                "$group": {
+                    "_id": {"category": "$category"},
+                    "max_price": {"$max": "$price"},
+                }
+            },
+            {"$project": {"_id": 0, "category": "$_id.category", "max_price": 1}},
+        ]
+        return list(self.products.aggregate(pipeline))
+
+    def get_avg_price_good_rating(self, rating: int) -> float:
+        """Calcule la moyenne des prix des produits dont le note est supérieur ou égale à rating"""
+        pipeline = [
+            {"$match": {"rating": {"$gte": rating}}},
+            {"$group": {"_id": None, "avg_price": {"$avg": "$price"}}},
+        ]
+        result = list(self.products.aggregate(pipeline))
+        return result[0]["avg_price"] if result else 0
+
+    def get_brand_products(self, text_inside: list[str]) -> list[dict]:
+        """Trouve les produit dont le nom contient un des item de la list text_inside"""
+        regex = "|".join(text_inside)
+        return self.find_products(
+            {"title": {"$regex": regex, "$options": "i"}}, {"_id": 0, "title": 1}
+        )
+
+    def get_value_ranking(self) -> list[dict]:
+        """Trouve les 10 produits ayant le meilleur score où score=rating/(price/100)"""
+        pipeline = [
+            {
+                "$addFields": {
+                    "score": {"$divide": ["$rating", {"$divide": ["$price", 100]}]}
+                }
+            },
+            {"$sort": {"score": -1}},
+            {"$limit": 10},
+            {"$project": {"_id": 0, "title": 1, "score": 1}},
+        ]
+        return list(self.products.aggregate(pipeline))
+
+    def get_price_ranges(self) -> list[dict]:
+        """Groupe les produits par interval de prix et compte le nombre produits par groupe"""
+        pipeline = [
+            {
+                "$bucket": {
+                    "groupBy": "$price",
+                    "boundaries": [0, 200, 500, 1000, float("inf")],
+                    "default": "out_of_range",
+                    "output": {
+                        "number_of_products": {"$sum": 1},
+                    },
+                }
+            }
+        ]
+        return list(self.products.aggregate(pipeline))
+
+    def get_same_price_products(self) -> list[dict]:
+        """Trouve les produits ayant le même prix"""
+        pipeline = [
+            {"$group": {"_id": {"price": "$price"}, "nb_occurrences": {"$sum": 1}}},
+            {"$match": {"nb_occurrences": {"$gt": 1}}},
+        ]
+        return list(self.products.aggregate(pipeline))
+
+```
+
+Affichage console :
+
+==================================================
+cheap_laptops:
+==================================================
+{'price': 498.23, 'title': 'Lenovo V510 Black'}
+{'price': 497.17, 'title': 'Dell Vostro 15 (3568) Red'}
+{'price': 494.71, 'title': 'Acer Aspire 3 A315-51 Black'}
+{'price': 488.78, 'title': 'Dell Vostro 15'}
+{'price': 488.64, 'title': 'Acer Swift 1 SF113-31 Silver'}
+... et 33 autres
+
+==================================================
+most_expensive_by_cat:
+==================================================
+{'max_price': 1799.0, 'category': 'computers'}
+{'max_price': 899.99, 'category': 'phones'}
+
+==================================================
+avg_price_good_rating:
+==================================================
+673.7970370370371
+
+==================================================
+brand_products:
+==================================================
+{'title': 'Apple MacBook Air 13"'}
+{'title': 'Apple MacBook Pro 13" Space Gray'}
+{'title': 'Apple MacBook Air 13"'}
+{'title': 'Apple iPad Air'}
+{'title': 'Samsung Galaxy'}
+
+==================================================
+value_ranking:
+==================================================
+{'title': 'Nokia 123', 'score': 12.004801920768308}
+{'title': 'LG Optimus', 'score': 5.173305742369374}
+{'title': 'IdeaTab A3500L', 'score': 4.494887065962468}
+{'title': 'Lenovo IdeaTab', 'score': 4.286326618088299}
+{'title': 'Asus MeMO Pad', 'score': 3.883872220603942}
+... et 5 autres
+
+==================================================
+price_ranges:
+==================================================
+{'_id': 0, 'number_of_products': 18}
+{'_id': 200, 'number_of_products': 44}
+{'_id': 500, 'number_of_products': 20}
+{'_id': 1000, 'number_of_products': 65}
+
+==================================================
+same_price_products:
+==================================================
+{'_id': {'price': 899.99}, 'nb_occurrences': 3}
+{'_id': {'price': 1199.0}, 'nb_occurrences': 2}
+{'_id': {'price': 436.29}, 'nb_occurrences': 2}
+{'_id': {'price': 1769.0}, 'nb_occurrences': 2}
+{'_id': {'price': 399.99}, 'nb_occurrences': 2}
+... et 6 autres
 
 ---
 

@@ -17,9 +17,9 @@ class MinIOConfig:
     access_key: str = os.getenv("S3_ACCESS_KEY", "minioadmin")
     secret_key: str = os.getenv("S3_SECRET_KEY", "minioadmin123")
     secure: bool = os.getenv("S3_SECURE", "false").lower() == "true"
-    bucket_images: str = "author-images"
-    bucket_exports: str = "quotes-exports"
-    bucket_backups: str = "quotes-backups"
+    bucket_images: str = "products-images"
+    bucket_exports: str = "products-exports"
+    bucket_backups: str = "products-backups"
 
 
 @dataclass

@@ -25,6 +25,7 @@ def main():
         print("PIPELINE COMPLETED")
         print("=" * 50)
         print(f"Products scraped: {stats['products_scraped']}")
+        print(f"Images scraped: {stats['products_scraped']}")
         print(f"Duration: {stats['duration_seconds']:.2f}s")
         print(f"Errors: {len(stats['errors'])}")
 
@@ -50,10 +51,10 @@ def main():
         overview = analytics.get("overview", {})
         print(f"Total products: {overview.get('total_products', 0)}")
         print(f"Total computers: {overview.get('total_computers', 0)}")
-        print(f"Total laptops: {overview.get('total_laptops', 0)}")
-        print(f"Total tablets: {overview.get('total_tablets', 0)}")
+        print(f"\tTotal computers/laptops: {overview.get('total_laptops', 0)}")
+        print(f"\tTotal computers/tablets: {overview.get('total_tablets', 0)}")
         print(f"Total phones: {overview.get('total_phones', 0)}")
-        print(f"Total touch: {overview.get('total_touch', 0)}")
+        print(f"\tTotal phones/touch: {overview.get('total_touch', 0)}")
 
     finally:
         pipeline.close()

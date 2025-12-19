@@ -1,5 +1,6 @@
 import re
 import time
+import uuid
 from dataclasses import dataclass
 from typing import Generator, Optional
 from urllib.parse import urljoin
@@ -18,6 +19,7 @@ logger = structlog.get_logger()
 class Product:
     """Représentation d'une citation."""
 
+    id_product: str
     category: str
     sub_category: str
     title: str
@@ -30,6 +32,7 @@ class Product:
     def to_dict(self) -> dict:
         """Convertit en dictionnaire pour MongoDB."""
         return {
+            "id_product": self.id_product,
             "category": self.category,
             "sub_category": self.sub_category,
             "title": self.title,
@@ -190,6 +193,7 @@ class ProductsScraper:
             )
 
             return Product(
+                id_product=uuid.uuid1().hex,
                 category=category,
                 sub_category=sub_category,
                 title=title,
@@ -251,22 +255,62 @@ class ProductsScraper:
 
         return None
 
+    @retry(
+        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10)
+    )
+    def _fetch_image(self, url: str) -> Optional[bytes]:
+        """
+        Récupère une image.
+
+        Args:
+            url: URL de l'image
+
+        Returns:
+            bytes ou None
+        """
+        try:
+            logger.debug("fetching", url=url)
+            response = self.session.get(url, timeout=scraper_config.timeout)
+            response.raise_for_status()
+
+            # Politesse
+            time.sleep(self.delay)
+
+            return response.content
+
+        except requests.RequestException as e:
+            logger.error("fetch_failed", url=url, error=str(e))
+            raise
+
     def scrape_complete(self, max_pages: int = None) -> dict:
         """
-        Scrape complet : citations + auteurs.
+        Scrape complet : produits + images.
 
         Args:
             max_pages: Limite de pages
 
         Returns:
-            {products: [...]}
+            {products: [...], images: [...]}
         """
         products = []
+        images = []
 
         for product in self.scrape_all_products(max_pages):
             products.append(product)
+            images.append(
+                {
+                    "filename": "/".join(
+                        [
+                            product.category,
+                            product.sub_category,
+                            "".join([product.id_product, ".jpeg"]),
+                        ]
+                    ),
+                    "image_byte": self._fetch_image(product.image_url),
+                }
+            )
 
-        return {"products": products}
+        return {"products": products, "images": images}
 
     def close(self) -> None:
         """Ferme la session."""

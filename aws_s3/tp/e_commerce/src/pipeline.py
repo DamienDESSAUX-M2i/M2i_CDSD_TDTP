@@ -27,7 +27,7 @@ class ProductsPipeline:
         self.scraper = ProductsScraper()
         self.minio = MinIOStorage()
         self.mongodb = MongoDBStorage()
-        self.stats = {"products_scraped": 0, "errors": []}
+        self.stats = {"products_scraped": 0, "images_scraped": 0, "errors": []}
 
     def process_product(self, product: Product) -> Optional[dict]:
         """Traite et stocke un produit."""
@@ -36,6 +36,17 @@ class ProductsPipeline:
             self.mongodb.insert_product(product_data)
             self.stats["products_scraped"] += 1
             return product_data
+        except Exception as e:
+            self.stats["errors"].append(str(e))
+            return None
+
+    def process_image(self, image: dict) -> Optional[bytes]:
+        try:
+            self.minio.upload_image(
+                image_data=image["image_byte"], filename=image["filename"]
+            )
+            self.stats["images_scraped"] += 1
+            return image
         except Exception as e:
             self.stats["errors"].append(str(e))
             return None
@@ -64,20 +75,30 @@ class ProductsPipeline:
 
             # Traiter les produits
             products = data["products"]
-            iterator = (
+            iterator_products = (
                 tqdm(products, desc="Processing products")
                 if show_progress
                 else products
             )
 
-            for product in iterator:
+            for product in iterator_products:
                 self.process_product(product)
+
+            # Traiter les images
+            images = data["images"]
+            iterator_images = (
+                tqdm(images, desc="Processing images") if show_progress else images
+            )
+
+            for image in iterator_images:
+                self.process_image(image)
 
             # Log du run
             duration = (datetime.utcnow() - start_time).total_seconds()
             self.mongodb.log_scraping_run(
                 status="success",
                 products_scraped=self.stats["products_scraped"],
+                images_scraped=self.stats["images_scraped"],
                 duration_seconds=duration,
                 errors=self.stats["errors"],
             )
@@ -87,6 +108,7 @@ class ProductsPipeline:
             self.mongodb.log_scraping_run(
                 status="failed",
                 products_scraped=self.stats["products_scraped"],
+                images_scraped=self.stats["images_scraped"],
                 duration_seconds=(datetime.utcnow() - start_time).total_seconds(),
                 errors=[str(e)],
             )

@@ -1,6 +1,7 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 
+import pymongo
 import structlog
 from config.settings import mongo_config
 from pymongo import ASCENDING, DESCENDING, TEXT, MongoClient
@@ -54,7 +55,7 @@ class MongoDBStorage:
 
             # Upsert basé sur title
             result = self.products.update_one(
-                {"title": product["title"]},
+                {"id_product": product["id_product"]},
                 {"$set": product},
                 upsert=True,
             )
@@ -118,80 +119,80 @@ class MongoDBStorage:
             "total_touch": self.products.count_documents({"sub_category": "touch"}),
         }
 
-    # def _avg_tags_per_quote(self) -> float:
-    #     """Calcule le nombre moyen de tags par citation."""
-    #     pipeline = [
-    #         {"$project": {"tag_count": {"$size": "$tags"}}},
-    #         {"$group": {"_id": None, "avg": {"$avg": "$tag_count"}}},
-    #     ]
-    #     result = list(self.quotes.aggregate(pipeline))
-    #     return result[0]["avg"] if result else 0
+    def get_cheap_laptops(self) -> list[dict]:
+        """Trouve les laptops inférieurs à 500€"""
+        return self.find_products(
+            {"sub_category": "laptops", "price": {"$lt": 500}},
+            {"_id": 0, "title": 1, "price": 1},
+            [("price", pymongo.DESCENDING)],
+        )
 
-    # def get_quotes_by_author_stats(self) -> list[dict]:
-    #     """Nombre de citations par auteur."""
-    #     pipeline = [
-    #         {
-    #             "$group": {
-    #                 "_id": "$author",
-    #                 "quote_count": {"$sum": 1},
-    #                 "tags": {"$push": "$tags"},
-    #             }
-    #         },
-    #         {"$sort": {"quote_count": -1}},
-    #     ]
-    #     return list(self.quotes.aggregate(pipeline))
+    def get_most_expensive_by_cat(self) -> list[dict]:
+        """Trouve les produits les plus cher par catégorie"""
+        pipeline = [
+            {
+                "$group": {
+                    "_id": {"category": "$category"},
+                    "max_price": {"$max": "$price"},
+                }
+            },
+            {"$project": {"_id": 0, "category": "$_id.category", "max_price": 1}},
+        ]
+        return list(self.products.aggregate(pipeline))
 
-    # def get_tag_co_occurrence(self) -> list[dict]:
-    #     """
-    #     Analyse la co-occurrence des tags.
-    #     Quels tags apparaissent souvent ensemble ?
-    #     """
-    #     pipeline = [
-    #         {"$unwind": "$tags"},
-    #         {"$group": {"_id": "$_id", "tags": {"$push": "$tags"}}},
-    #         {"$match": {"tags.1": {"$exists": True}}},  # Au moins 2 tags
-    #         {"$unwind": "$tags"},
-    #         {"$group": {"_id": "$tags", "co_tags": {"$push": "$tags"}}},
-    #     ]
-    #     return list(self.quotes.aggregate(pipeline))
+    def get_avg_price_good_rating(self, rating: int) -> float:
+        """Calcule la moyenne des prix des produits dont le note est supérieur ou égale à rating"""
+        pipeline = [
+            {"$match": {"rating": {"$gte": rating}}},
+            {"$group": {"_id": None, "avg_price": {"$avg": "$price"}}},
+        ]
+        result = list(self.products.aggregate(pipeline))
+        return result[0]["avg_price"] if result else 0
 
-    # def get_author_tag_analysis(self) -> list[dict]:
-    #     """Analyse des tags préférés par auteur."""
-    #     pipeline = [
-    #         {"$unwind": "$tags"},
-    #         {
-    #             "$group": {
-    #                 "_id": {"author": "$author", "tag": "$tags"},
-    #                 "count": {"$sum": 1},
-    #             }
-    #         },
-    #         {"$sort": {"count": -1}},
-    #         {
-    #             "$group": {
-    #                 "_id": "$_id.author",
-    #                 "top_tags": {"$push": {"tag": "$_id.tag", "count": "$count"}},
-    #             }
-    #         },
-    #     ]
-    #     return list(self.quotes.aggregate(pipeline))
+    def get_brand_products(self, text_inside: list[str]) -> list[dict]:
+        """Trouve les produit dont le nom contient un des item de la list text_inside"""
+        regex = "|".join(text_inside)
+        return self.find_products(
+            {"title": {"$regex": regex, "$options": "i"}}, {"_id": 0, "title": 1}
+        )
 
-    # def get_quote_length_distribution(self) -> list[dict]:
-    #     """Distribution de la longueur des citations."""
-    #     pipeline = [
-    #         {"$project": {"length": {"$strLenCP": "$text"}, "author": 1}},
-    #         {
-    #             "$bucket": {
-    #                 "groupBy": "$length",
-    #                 "boundaries": [0, 50, 100, 150, 200, 300, 500],
-    #                 "default": "500+",
-    #                 "output": {
-    #                     "count": {"$sum": 1},
-    #                     "authors": {"$addToSet": "$author"},
-    #                 },
-    #             }
-    #         },
-    #     ]
-    #     return list(self.quotes.aggregate(pipeline))
+    def get_value_ranking(self) -> list[dict]:
+        """Trouve les 10 produits ayant le meilleur score où score=rating/(price/100)"""
+        pipeline = [
+            {
+                "$addFields": {
+                    "score": {"$divide": ["$rating", {"$divide": ["$price", 100]}]}
+                }
+            },
+            {"$sort": {"score": -1}},
+            {"$limit": 10},
+            {"$project": {"_id": 0, "title": 1, "score": 1}},
+        ]
+        return list(self.products.aggregate(pipeline))
+
+    def get_price_ranges(self) -> list[dict]:
+        """Groupe les produits par interval de prix et compte le nombre produits par groupe"""
+        pipeline = [
+            {
+                "$bucket": {
+                    "groupBy": "$price",
+                    "boundaries": [0, 200, 500, 1000, float("inf")],
+                    "default": "out_of_range",
+                    "output": {
+                        "number_of_products": {"$sum": 1},
+                    },
+                }
+            }
+        ]
+        return list(self.products.aggregate(pipeline))
+
+    def get_same_price_products(self) -> list[dict]:
+        """Trouve les produits ayant le même prix"""
+        pipeline = [
+            {"$group": {"_id": {"price": "$price"}, "nb_occurrences": {"$sum": 1}}},
+            {"$match": {"nb_occurrences": {"$gt": 1}}},
+        ]
+        return list(self.products.aggregate(pipeline))
 
     # ============ LOGS ============
 
@@ -199,6 +200,7 @@ class MongoDBStorage:
         self,
         status: str,
         products_scraped: int,
+        images_scraped: int,
         duration_seconds: float,
         errors: list = None,
     ) -> None:
@@ -208,6 +210,7 @@ class MongoDBStorage:
                 "timestamp": datetime.utcnow(),
                 "status": status,
                 "products_scraped": products_scraped,
+                "images_scraped": images_scraped,
                 "duration_seconds": duration_seconds,
                 "errors": errors or [],
             }

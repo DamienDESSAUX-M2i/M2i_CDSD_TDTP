@@ -14,9 +14,7 @@ class MongoDBStorage:
     Gestionnaire MongoDB pour les données structurées.
 
     Collections :
-    - quotes : Citations avec texte, auteur, tags
-    - authors : Informations détaillées sur les auteurs
-    - tags : Statistiques et métadonnées des tags
+    - produits : Produits avec titre, prix, description, avis, image_url et details_url
     - scraping_logs : Historique des exécutions
     """
 
@@ -31,7 +29,7 @@ class MongoDBStorage:
     def _create_indexes(self) -> None:
         """Crée les index pour optimiser les requêtes."""
         # Index sur les produits
-        self.products.create_index([("title", TEXT)], unique=True)
+        self.products.create_index([("title", TEXT)])
         self.products.create_index([("price", ASCENDING)])
         self.products.create_index([("rating", ASCENDING)])
         self.products.create_index([("scraped_at", DESCENDING)])
@@ -55,7 +53,7 @@ class MongoDBStorage:
             product["updated_at"] = datetime.utcnow()
 
             # Upsert basé sur title
-            result = self.quotes.update_one(
+            result = self.products.update_one(
                 {"title": product["title"]},
                 {"$set": product},
                 upsert=True,
@@ -109,15 +107,93 @@ class MongoDBStorage:
 
     # ============ STATS ============
 
-    # TODO
+    def get_stats(self) -> dict:
+        """Statistiques globales."""
+        return {
+            "total_products": self.products.count_documents({}),
+        }
+
+    # def _avg_tags_per_quote(self) -> float:
+    #     """Calcule le nombre moyen de tags par citation."""
+    #     pipeline = [
+    #         {"$project": {"tag_count": {"$size": "$tags"}}},
+    #         {"$group": {"_id": None, "avg": {"$avg": "$tag_count"}}},
+    #     ]
+    #     result = list(self.quotes.aggregate(pipeline))
+    #     return result[0]["avg"] if result else 0
+
+    # def get_quotes_by_author_stats(self) -> list[dict]:
+    #     """Nombre de citations par auteur."""
+    #     pipeline = [
+    #         {
+    #             "$group": {
+    #                 "_id": "$author",
+    #                 "quote_count": {"$sum": 1},
+    #                 "tags": {"$push": "$tags"},
+    #             }
+    #         },
+    #         {"$sort": {"quote_count": -1}},
+    #     ]
+    #     return list(self.quotes.aggregate(pipeline))
+
+    # def get_tag_co_occurrence(self) -> list[dict]:
+    #     """
+    #     Analyse la co-occurrence des tags.
+    #     Quels tags apparaissent souvent ensemble ?
+    #     """
+    #     pipeline = [
+    #         {"$unwind": "$tags"},
+    #         {"$group": {"_id": "$_id", "tags": {"$push": "$tags"}}},
+    #         {"$match": {"tags.1": {"$exists": True}}},  # Au moins 2 tags
+    #         {"$unwind": "$tags"},
+    #         {"$group": {"_id": "$tags", "co_tags": {"$push": "$tags"}}},
+    #     ]
+    #     return list(self.quotes.aggregate(pipeline))
+
+    # def get_author_tag_analysis(self) -> list[dict]:
+    #     """Analyse des tags préférés par auteur."""
+    #     pipeline = [
+    #         {"$unwind": "$tags"},
+    #         {
+    #             "$group": {
+    #                 "_id": {"author": "$author", "tag": "$tags"},
+    #                 "count": {"$sum": 1},
+    #             }
+    #         },
+    #         {"$sort": {"count": -1}},
+    #         {
+    #             "$group": {
+    #                 "_id": "$_id.author",
+    #                 "top_tags": {"$push": {"tag": "$_id.tag", "count": "$count"}},
+    #             }
+    #         },
+    #     ]
+    #     return list(self.quotes.aggregate(pipeline))
+
+    # def get_quote_length_distribution(self) -> list[dict]:
+    #     """Distribution de la longueur des citations."""
+    #     pipeline = [
+    #         {"$project": {"length": {"$strLenCP": "$text"}, "author": 1}},
+    #         {
+    #             "$bucket": {
+    #                 "groupBy": "$length",
+    #                 "boundaries": [0, 50, 100, 150, 200, 300, 500],
+    #                 "default": "500+",
+    #                 "output": {
+    #                     "count": {"$sum": 1},
+    #                     "authors": {"$addToSet": "$author"},
+    #                 },
+    #             }
+    #         },
+    #     ]
+    #     return list(self.quotes.aggregate(pipeline))
 
     # ============ LOGS ============
 
     def log_scraping_run(
         self,
         status: str,
-        quotes_scraped: int,
-        authors_scraped: int,
+        products_scraped: int,
         duration_seconds: float,
         errors: list = None,
     ) -> None:
@@ -126,8 +202,7 @@ class MongoDBStorage:
             {
                 "timestamp": datetime.utcnow(),
                 "status": status,
-                "quotes_scraped": quotes_scraped,
-                "authors_scraped": authors_scraped,
+                "products_scraped": products_scraped,
                 "duration_seconds": duration_seconds,
                 "errors": errors or [],
             }

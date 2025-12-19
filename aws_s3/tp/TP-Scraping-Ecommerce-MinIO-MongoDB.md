@@ -275,7 +275,7 @@ Création de la classe `ProductsScraper`. J'ai modifié le fichié démo.
 
 ### 5.1 Pipeline principal
 
-
+Création de la classe `ProductsPipeline`. Modification de la démo.
 
 ---
 
@@ -286,6 +286,9 @@ Création de la classe `ProductsScraper`. J'ai modifié le fichié démo.
 **Questions à répondre :**
 
 1. Combien de produits ont été scrapés ?
+
+-> Pour les 
+
 2. Quelle est la structure d'un document produit dans MongoDB ?
 3. Comment sont organisées les images dans MinIO ?
 

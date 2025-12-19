@@ -5,10 +5,9 @@ from typing import Optional
 
 import pandas as pd
 import structlog
-from tqdm import tqdm
-
 from src import Author, Quote, QuotesScraper
 from src.storage import MinIOStorage, MongoDBStorage
+from tqdm import tqdm
 
 logger = structlog.get_logger()
 

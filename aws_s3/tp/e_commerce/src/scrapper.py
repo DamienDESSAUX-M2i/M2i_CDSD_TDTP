@@ -101,10 +101,19 @@ class ProductsScraper:
     def _clean_price(self, text: str) -> str:
         """Nettoie le texte d'une description."""
         try:
-            price = float(re.findall(r"[\d.]", text)[0])
+            price = float(re.findall(r"[\d.]+", text)[0])
             return price
         except Exception as e:
             logger.error("clean_price failled", error=str(e))
+            return None
+
+    def _clean_rating(self, text: str) -> str:
+        """Nettoie le texte d'une description."""
+        try:
+            rating = int(text)
+            return rating
+        except Exception as e:
+            logger.error("clean_rating failled", error=str(e))
             return None
 
     def scrape_products_page(self, url: str) -> list[Product]:
@@ -155,8 +164,12 @@ class ProductsScraper:
             description = text_elem.text if text_elem else ""
 
             # Avis du produit
-            rating_elem = element.select("p.review-count + p")
-            rating = rating_elem.get("data_rating") if rating_elem else ""
+            rating_elem = element.select("p.review-count + p")[0]
+            rating = (
+                self._clean_rating(rating_elem.get("data-rating"))
+                if rating_elem
+                else ""
+            )
 
             # Image URL du produit
             image_link = element.find("img")
@@ -224,6 +237,23 @@ class ProductsScraper:
             return urljoin(self.base_url, next_link["href"])
 
         return None
+
+    def scrape_complete(self, max_pages: int = None) -> dict:
+        """
+        Scrape complet : citations + auteurs.
+
+        Args:
+            max_pages: Limite de pages
+
+        Returns:
+            {products: [...]}
+        """
+        products = []
+
+        for product in self.scrape_all_products(max_pages):
+            products.append(product)
+
+        return {"products": products}
 
     def close(self) -> None:
         """Ferme la session."""

@@ -111,6 +111,11 @@ class MongoDBStorage:
         """Statistiques globales."""
         return {
             "total_products": self.products.count_documents({}),
+            "total_computers": self.products.count_documents({"category": "computers"}),
+            "total_laptops": self.products.count_documents({"sub_category": "laptops"}),
+            "total_tablets": self.products.count_documents({"sub_category": "tablets"}),
+            "total_phones": self.products.count_documents({"category": "phones"}),
+            "total_touch": self.products.count_documents({"sub_category": "touch"}),
         }
 
     # def _avg_tags_per_quote(self) -> float:

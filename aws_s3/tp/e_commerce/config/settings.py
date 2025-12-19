@@ -4,7 +4,7 @@ Utilise des variables d'environnement avec valeurs par défaut.
 """
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from dotenv import load_dotenv
 
@@ -37,9 +37,7 @@ class MongoDBConfig:
 
 @dataclass
 class ScraperConfig:
-    base_url: str = (
-        "https://webscraper.io/test-sites/e-commerce/static/computers/laptops"
-    )
+    base_urls: list[str] = field(default_factory=list)
     delay: float = 1.0
     timeout: int = 30
     max_retries: int = 3
@@ -48,4 +46,10 @@ class ScraperConfig:
 
 minio_config = MinIOConfig()
 mongo_config = MongoDBConfig()
-scraper_config = ScraperConfig()
+scraper_config = ScraperConfig(
+    base_urls=[
+        "https://webscraper.io/test-sites/e-commerce/static/computers/laptops",
+        "https://webscraper.io/test-sites/e-commerce/static/computers/tablets",
+        "https://webscraper.io/test-sites/e-commerce/static/phones/touch",
+    ]
+)

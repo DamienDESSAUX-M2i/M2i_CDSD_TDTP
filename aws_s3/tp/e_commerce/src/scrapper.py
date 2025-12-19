@@ -1,6 +1,6 @@
 import re
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Generator, Optional
 from urllib.parse import urljoin
 
@@ -18,6 +18,8 @@ logger = structlog.get_logger()
 class Product:
     """Représentation d'une citation."""
 
+    category: str
+    sub_category: str
     title: str
     price: float | int
     description: str
@@ -28,6 +30,8 @@ class Product:
     def to_dict(self) -> dict:
         """Convertit en dictionnaire pour MongoDB."""
         return {
+            "category": self.category,
+            "sub_category": self.sub_category,
             "title": self.title,
             "price": self.price,
             "description": self.description,
@@ -51,14 +55,12 @@ class ProductsScraper:
     """
 
     def __init__(self):
-        self.base_url = scraper_config.base_url
+        self.base_urls = scraper_config.base_urls
+        self.base_url = None
         self.delay = scraper_config.delay
         self.session = requests.Session()
         self.ua = UserAgent()
         self._setup_session()
-
-        # Cache pour éviter de re-scraper les produits
-        self.products_cache: dict[str, Product] = {}
 
     def _setup_session(self) -> None:
         """Configure la session HTTP."""
@@ -151,6 +153,12 @@ class ProductsScraper:
             Objet Product ou None
         """
         try:
+            # Categorie du produit
+            category = self.base_url.split("/")[-2]
+
+            # Sous Categorie du produit
+            sub_category = self.base_url.split("/")[-1]
+
             # Titre du produit
             title_elem = element.find("a", class_="title")
             title = title_elem["title"] if title_elem else "Unknown"
@@ -182,6 +190,8 @@ class ProductsScraper:
             )
 
             return Product(
+                category=category,
+                sub_category=sub_category,
                 title=title,
                 price=price,
                 description=description,
@@ -207,27 +217,30 @@ class ProductsScraper:
             Objets Product
         """
         max_pages = max_pages or scraper_config.max_pages
-        page = 1
-        url = self.base_url
 
-        while url and page <= max_pages:
-            logger.info("scraping_page", page=page)
+        for base_url in self.base_urls:
+            self.base_url = base_url
+            page = 1
+            url = self.base_url
 
-            soup = self._fetch(url)
-            if not soup:
-                break
+            while url and page <= max_pages:
+                logger.info("scraping_page", page=page)
 
-            # Parser les produits de la page
-            product_divs = soup.find_all("div", class_="product-wrapper")
+                soup = self._fetch(url)
+                if not soup:
+                    break
 
-            for div in product_divs:
-                product = self._parse_product(div)
-                if product:
-                    yield product
+                # Parser les produits de la page
+                product_divs = soup.find_all("div", class_="product-wrapper")
 
-            # Page suivante
-            url = self._get_next_page(soup)
-            page += 1
+                for div in product_divs:
+                    product = self._parse_product(div)
+                    if product:
+                        yield product
+
+                # Page suivante
+                url = self._get_next_page(soup)
+                page += 1
 
     def _get_next_page(self, soup: BeautifulSoup) -> Optional[str]:
         """Trouve l'URL de la page suivante."""

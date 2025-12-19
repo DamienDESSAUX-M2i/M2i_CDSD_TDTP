@@ -7,7 +7,7 @@ def main():
     """Point d'entrée CLI."""
 
     parser = argparse.ArgumentParser(description="Products Scraping Pipeline")
-    parser.add_argument("--pages", type=int, default=5, help="Max pages to scrape")
+    parser.add_argument("--pages", type=int, default=2, help="Max pages to scrape")
     parser.add_argument("--export-csv", action="store_true", help="Export to CSV")
     parser.add_argument("--export-json", action="store_true", help="Export to JSON")
     parser.add_argument("--backup", action="store_true", help="Create backup")
@@ -49,6 +49,11 @@ def main():
 
         overview = analytics.get("overview", {})
         print(f"Total products: {overview.get('total_products', 0)}")
+        print(f"Total computers: {overview.get('total_computers', 0)}")
+        print(f"Total laptops: {overview.get('total_laptops', 0)}")
+        print(f"Total tablets: {overview.get('total_tablets', 0)}")
+        print(f"Total phones: {overview.get('total_phones', 0)}")
+        print(f"Total touch: {overview.get('total_touch', 0)}")
 
     finally:
         pipeline.close()

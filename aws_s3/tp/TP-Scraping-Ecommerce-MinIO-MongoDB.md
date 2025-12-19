@@ -260,6 +260,8 @@ Création de la classe `MongoStorage` dans le fichier `src/storage/mongo_client.
 ### 4.1 Scraper principal
 
 Définition du modèle `Product` :
+- category: str
+- ub_category: str
 - title: str
 - price: float
 - description: str
@@ -287,9 +289,24 @@ Création de la classe `ProductsPipeline`. Modification de la démo.
 
 1. Combien de produits ont été scrapés ?
 
--> Pour les 
+->  Total products: 114
+    Total computers: 107
+    Total laptops: 88
+    Total tablets: 19
+    Total phones: 7
+    Total touch: 7
 
 2. Quelle est la structure d'un document produit dans MongoDB ?
+
+->  category: str
+    sub_category: str
+    title: str
+    price: float | int
+    description: str
+    rating: int
+    image_url: str
+    details_url: str
+
 3. Comment sont organisées les images dans MinIO ?
 
 ---

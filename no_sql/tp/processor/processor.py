@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from typing import Any, Literal
 
+import numpy as np
 import pandas as pd
 import pymongo
 
@@ -195,9 +196,76 @@ class PipelineTransactions:
         )
 
 
+class PipelineCampaigns:
+    def __init__(self, config: dict[str, Any], logger: logging.Logger):
+        self.config = config
+        self.logger = logger
+        self.extractor = MongoDBExtractor(logger=self.logger)
+        self.loader = MongoDBLoader(logger=self.logger)
+
+    def run(self):
+        try:
+            self.logger.info("Pipeline campaigns start")
+            self.logger.info("[1/3] Extraction")
+            data_extracted = self._extract()
+            self.logger.info("[2/3] Transformation")
+            data_transformed = self._transform(data_extracted)
+            self.logger.info("[3/3] Loading")
+            self._load(data_transformed)
+            self.logger.info("Pipeline campaigns end")
+        except Exception as e:
+            self.logger.error(f"Pipeline campaigns error : {e}")
+
+    def _extract(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            self.extractor.extract(
+                db_name=self.config["db_bronze"],
+                collection_name=self.config["collection_campaigns"],
+            )
+        )
+
+    def _transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        self.logger.info("\tDrop duplicates")
+        df.drop_duplicates()
+
+        self.logger.info("\tFill NAN")
+        df["campaign_name"] = df["campaign_name"].fillna(value="Unknown")
+        df["campaign_type"] = df["campaign_type"].fillna(value="Unknown")
+        df["budget"] = df["budget"].fillna(value=0)
+        df["spend"] = df["spend"].fillna(value=0)
+        df["impressions"] = df["impressions"].fillna(value=0)
+        df["clicks"] = df["clicks"].fillna(value=0)
+        df["conversions"] = df["conversions"].fillna(value=0)
+        df["target_audience"] = df["target_audience"].fillna(value="Unknown")
+        df["status"] = df["status"].fillna(value="Unknown")
+
+        self.logger.info("\tCompute KPI")
+        df["CTR"] = (df["clicks"] / df["impressions"]) * 100
+        df["conversion_rate"] = (df["conversions"] / df["clicks"]) * 100
+        df["CPC"] = df["spend"] / df["clicks"]
+        df["CPA"] = df["clicks"] / df["conversions"]
+        df["ROI"] = ((df["budget"] - df["spend"]) / df["budget"]) * 100
+
+        # Replace nan, inf and -inf
+        df["CTR"].replace([np.nan, np.inf, -np.inf], 0, inplace=True)
+        df["conversion_rate"].replace([np.nan, np.inf, -np.inf], 0, inplace=True)
+        df["CPC"].replace([np.nan, np.inf, -np.inf], 0, inplace=True)
+        df["CPA"].replace([np.nan, np.inf, -np.inf], 0, inplace=True)
+        df["ROI"].replace([np.nan, np.inf, -np.inf], 0, inplace=True)
+
+        return df
+
+    def _load(self, df: pd.DataFrame) -> None:
+        self.loader.load(
+            db_name=self.config["db_silver"],
+            collection_name=self.config["collection_campaigns"],
+            data=df.to_dict(orient="records"),
+        )
+
+
 def main():
-    logger_path = DIR_PATH / "app.log"
-    logger = setup_logger(name="app", log_file=logger_path)
+    logger_path = DIR_PATH / "processor.log"
+    logger = setup_logger(name="processor", log_file=logger_path)
     config = {
         "db_bronze": "bronze_db",
         "db_silver": "silver_db",
@@ -205,10 +273,12 @@ def main():
         "collection_transactions": "transactions",
         "collection_campaigns": "campaigns",
     }
-    # pipeline_customers = PipelineCustomers(config=config, logger=logger)
-    # pipeline_customers.run()
-    # pipeline_transactions = PipelineTransactions(config=config, logger=logger)
-    # pipeline_transactions.run()
+    pipeline_customers = PipelineCustomers(config=config, logger=logger)
+    pipeline_customers.run()
+    pipeline_transactions = PipelineTransactions(config=config, logger=logger)
+    pipeline_transactions.run()
+    pipeline_campaigns = PipelineCampaigns(config=config, logger=logger)
+    pipeline_campaigns.run()
 
 
 if __name__ == "__main__":

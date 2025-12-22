@@ -40,7 +40,16 @@ Consultez **SUJET.md** pour les instructions complètes.
 
 **Vous devez créer :**
 1. **Silver** : Script Python pour nettoyer et anonymiser les données
+
+```bash
+python processor/processor.py
+```
+
 2. **Gold** : Script Python pour agréger et exporter vers PostgreSQL
+
+```bash
+python aggregator/aggregator.py
+```
 
 ---
 

@@ -61,8 +61,8 @@ Vous êtes Data Engineer dans une startup de veille concurrentielle. Votre missi
 
 ### Justification de l'Architecture Hybride
 
-- MongoDB propose un stockage orienté document au format BSON. Il sera adapté aux données qui peuvent être mises sous forme d'un fichier JSON. De plus, il propose une indexation qui accélère la lecture des données.
-- MinIO propose quand à lui un stockage objet. Il propose l'ajout de métadonnées.
+- MongoDB propose un stockage orienté document au format BSON. Il sera adapté aux données qui peuvent être mises sous forme d'un fichier JSON comme les produits. De plus, il propose une indexation qui accélère la lecture des données.
+- MinIO propose quant à lui un stockage orienté objet. Il permet l'ajout de métadonnées qui enrichie les fichiers binaires comme les images.
 
 ---
 
@@ -84,12 +84,35 @@ Avant de coder, explorez manuellement le site : https://webscraper.io/test-sites
 
 3. Quelles informations sont disponibles sur la page liste vs page détail ?
 
--> Les informations principales de la page liste sont : Le nom de la catégorie et les articles vendus. Chaque article contient les informations suivantes : image, nom, prix, description, note, et nombre d'avis.
+-> Les informations principales de la page liste sont :
+- le nom de la catégorie
+- le nom de la sous-catégorie
+- le lien de l'image, le nom, le lien de la page détaillée, le prix, la description partielle, la note, et le nombre d'avis d'au plus 10 articles.
 
-Les informations principales de la page détaillées sont :
-- Pour les laptops : image, nom, prix, description, note, nombre d'avis et une sélection HDD.
-- Pour les tablets : image, nom, prix, not, nombre d'avis, une sélection couleur et une sélection HDD
-- Pour les Touch : image, prix, description, note, nombre d'avis et une sélection couleur.
+-> Les informations principales de la page détaillées sont :
+- Pour les laptops :
+  - le lien de l'image
+  - le nom
+  - le prix
+  - la description complète
+  - la note
+  - le nombre d'avis
+  - une sélection HDD
+- Pour les tablets :
+  - le lien de l'image
+  - le nom
+  - le prix
+  - la note
+  - le nombre d'avis
+  - une sélection couleur
+  - une sélection HDD
+- Pour les Touch :
+  - le lien de l'image
+  - le prix
+  - la description
+  - la note
+  - le nombre d'avis
+  - une sélection couleur
 
 4. Où se trouvent les images des produits ?
 
@@ -124,6 +147,8 @@ Créez l'arborescence du projet.
 
 ```
 │   docker-compose.yml
+│   exo2_mongo_queries.py
+│   exo3_minio_operations.py
 │   main.py
 │   requirements.txt
 │   
@@ -145,6 +170,8 @@ Créez l'arborescence du projet.
 ### 2.2 Docker Compose
 
 Créez le fichier `docker-compose.yml` pour le projet.
+
+-> Le fichier `docker-compose.yml` comprend trois service : `minio`, `mongo` et `mongo-express`.
 
 ```yaml
 name: s3_mino
@@ -243,21 +270,19 @@ Le fichier `config.__init__.py` permet d'importer une instance des classes préc
 
 ### 3.1 Client MinIO
 
-Création de la classe `MinIOStorage` dans le fichier `src/storage/minio_client.py` :
-- J'ai copié le fichier de la démo.
+Création de la classe `MinIOStorage` dans le fichier `src/storage/minio_client.py`.
 
 ### 3.2 Client MongoDB
 
-Création de la classe `MongoStorage` dans le fichier `src/storage/mongo_client.py` :
-- Modification du fichier de la démo :
-  - modification du nom des collections : produits, stats, logs
-  - modification des méthodes associées
+Création de la classe `MongoStorage` dans le fichier `src/storage/mongo_client.py`.
 
 ---
 
 ## Partie 4 : Scraper E-Commerce 
 
 ### 4.1 Scraper principal
+
+Création des classes `Product` et `ProductsScraper` dans le fichier `src/scrapper.py`.
 
 Définition du modèle `Product` :
 - id_product: uuid
@@ -270,15 +295,13 @@ Définition du modèle `Product` :
 - image_url: str
 - details_url: str
 
-Création de la classe `ProductsScraper`. J'ai modifié le fichié démo.
-
 ---
 
 ## Partie 5 : Pipeline Intégré
 
 ### 5.1 Pipeline principal
 
-Création de la classe `ProductsPipeline`. Modification de la démo.
+Création de la classe `ProductsPipeline` dans le fichier `src/pipeline.py`.
 
 ---
 
@@ -290,24 +313,32 @@ Création de la classe `ProductsPipeline`. Modification de la démo.
 
 1. Combien de produits ont été scrapés ?
 
-->  Total products: 147
-        Total computers: 138
-            Total computers/laptops: 117
-            Total computers/tablets: 21
-        Total phones: 9
-            Total phones/touch: 9
+-> Au total 147 produits ont été scrappés.
+
+Affichage concole :
+
+====================================
+Total products: 147
+    Total computers: 138
+        Total computers/laptops: 117
+        Total computers/tablets: 21
+    Total phones: 9
+        Total phones/touch: 9
+====================================
 
 2. Quelle est la structure d'un document produit dans MongoDB ?
 
-->  id_product: uuid
-    category: str
-    sub_category: str
-    title: str
-    price: float | int
-    description: str
-    rating: int
-    image_url: str
-    details_url: str
+-> Dans MondoDB un document produit a la structure suivante :
+- _id: ObjectId
+- id_product: str
+- category: str
+- sub_category: str
+- title: str
+- price: float | int
+- description: str
+- rating: int
+- image_url: str
+- details_url: str
 
 3. Comment sont organisées les images dans MinIO ?
 
@@ -320,6 +351,8 @@ Dans MinIO, le filename des images suis la structure suivante `products_images/c
 **Objectif** : Maîtriser les requêtes et agrégations.
 
 Créez le fichier `exercises/ex2_mongo_queries.py` :
+
+-> J'ai placé le fichier `ex2_mongo_queries.py` à la racine du projet en raison des imports.
 
 ```python
 """
@@ -391,7 +424,7 @@ if __name__ == "__main__":
             print(result)
 ```
 
-Ajout de méthodes dans le fichier `src/storage/mongo_client.py` pour l'exercice 2.
+-> Ajout de méthodes dans le fichier `src/storage/mongo_client.py` pour l'exercice 2.
 
 ```python
     def get_cheap_laptops(self) -> list[dict]:
@@ -471,7 +504,7 @@ Ajout de méthodes dans le fichier `src/storage/mongo_client.py` pour l'exercice
 
 ```
 
-Affichage console :
+-> Affichage console :
 
 ==================================================
 cheap_laptops:
@@ -539,6 +572,8 @@ same_price_products:
 
 Créez le fichier `exercises/ex3_minio_operations.py` :
 
+-> J'ai placé le fichier `ex3_minio_operations.py` à la racine du porjet en raison des imports.
+
 ```python
 """
 Exercice 3 : Opérations MinIO
@@ -546,59 +581,172 @@ Exercice 3 : Opérations MinIO
 Complétez les fonctions TODO.
 """
 
-from PIL import Image
 import io
+import json
+from copy import deepcopy
+from datetime import datetime
+from pathlib import Path
+
+from config import minio_config
+from PIL import Image
 from src.storage import MinIOStorage, MongoDBStorage
+
+DIR_PATH = Path(__file__).parent.resolve()
+
+
+def create_thumbnails(minio: MinIOStorage, list_filenames: dict) -> int:
+    """Crée un thumbnail pour chaque image de produit"""
+    thumbnails_created = 0
+    for filename in list_filenames:
+        image_byte = minio.get_object(
+            bucket=minio_config.bucket_images, filename=filename
+        )
+
+        # Load byte object
+        pil_image = Image.open(io.BytesIO(image_byte))
+        pil_image.thumbnail((100, 100))
+
+        # Pillow Image object to byte
+        thumbnail_byte = io.BytesIO()
+        pil_image.save(thumbnail_byte, format="PNG")
+        thumbnail_byte = thumbnail_byte.getvalue()
+
+        # Upload thumbnail image
+        thumbnail_filename = "thumbnail/" + filename
+        minio.upload_image(image_data=thumbnail_byte, filename=thumbnail_filename)
+
+        thumbnails_created += 1
+    return thumbnails_created
 
 
 def exercise_3():
     minio = MinIOStorage()
     mongo = MongoDBStorage()
-    
+
     # 3.1 Listez toutes les images et calculez la taille totale
-    # TODO
-    total_images = 0
-    total_size_kb = 0
-    
+    list_objects = minio.list_objects(bucket=minio_config.bucket_images)
+    total_images = len(list_objects)
+    total_size_kb = sum([object_info["size"] for object_info in list_objects])
+
     # 3.2 Créez des thumbnails (100x100) pour toutes les images
     # Stockez-les dans le même bucket avec préfixe "thumbnails/"
     # Indice: Utilisez PIL (Pillow)
-    # TODO
     thumbnails_created = 0
-    
+    # list_filenames = [object_info["name"] for object_info in list_objects]
+    # thumbnails_created = create_thumbnails(minio=minio, list_filenames=list_filenames)
+
     # 3.3 Générez une URL présignée (24h) pour l'image du produit le plus cher
-    # TODO
-    presigned_url = None
-    
+    pipeline = [{"$sort": {"price": -1}}, {"$limit": 1}]
+    product_most_expensive = list(mongo.products.aggregate(pipeline))[0]
+    filename_product_most_expensive = "/".join(
+        [
+            product_most_expensive["category"],
+            product_most_expensive["sub_category"],
+            product_most_expensive["id_product"],
+            ".jpeg",
+        ]
+    )
+    presigned_url = minio.get_presigned_url(
+        bucket=minio_config.bucket_images,
+        filename=filename_product_most_expensive,
+        expires_hours=24,
+    )
+
     # 3.4 Créez un rapport JSON avec les stats de chaque catégorie d'images
     # et uploadez-le dans le bucket exports
     # Format: {"laptops": {"count": X, "size_kb": Y}, ...}
-    # TODO
+    objects_infos = deepcopy(list_objects)
+
+    # Ajout d'information à partir du filename: thumbnail image, category et sub_category
+    sub_categories = []
+    for k in range(len(objects_infos)):
+        filename = objects_infos[k]["name"]
+        filename_split = filename.split("/")
+        if "thumbnail" in filename_split:
+            objects_infos[k]["thumbnail"] = True
+            objects_infos[k]["category"] = filename_split[1]
+            objects_infos[k]["sub_category"] = filename_split[2]
+        else:
+            objects_infos[k]["thumbnail"] = False
+            objects_infos[k]["category"] = filename_split[0]
+            objects_infos[k]["sub_category"] = filename_split[1]
+        sub_categories.append(objects_infos[k]["sub_category"])
+
+    # Liste des sub_categories
+    dictincts_sub_categories = list(set(sub_categories))
+
+    # Images originales
+    original_objects_infos = [
+        object_info for object_info in objects_infos if object_info["thumbnail"]
+    ]
+
     stats_report = {}
-    
+    for sub_category in dictincts_sub_categories:
+        sub_category_objects_infos = [
+            object_info
+            for object_info in original_objects_infos
+            if object_info["sub_category"] == sub_category
+        ]
+        stats_report.update(
+            {
+                sub_category: {
+                    "count": len(sub_category_objects_infos),
+                    "size": sum(
+                        [
+                            sub_category_object_info["size"]
+                            for sub_category_object_info in sub_category_objects_infos
+                        ]
+                    ),
+                }
+            }
+        )
+
+        # Upload bucket export
+        stats_report_byte = json.dumps(stats_report, indent=4).encode("utf-8")
+        filename_report = (
+            "stats_report_" + datetime.now().strftime("%Y%m%dT%H%M%S") + ".json"
+        )
+        minio.upload_export(data=stats_report_byte, filename=filename_report)
+
     # 3.5 Implémentez une fonction qui copie toutes les images
     # vers un nouveau bucket "backup-YYYYMMDD"
-    # TODO
-    backup_created = False
-    
+    for object_info in list_objects:
+        filename: str = object_info["name"]
+        image_byte = minio.get_object(
+            bucket=minio_config.bucket_images, filename=filename
+        )
+        minio.create_backup(data=image_byte, prefix=filename.replace(".jpeg", ""))
+    backup_created = True
+
     mongo.close()
-    
+
     return {
         "total_images": total_images,
         "total_size_kb": total_size_kb,
         "thumbnails_created": thumbnails_created,
         "presigned_url": presigned_url,
         "stats_report": stats_report,
-        "backup_created": backup_created
+        "backup_created": backup_created,
     }
 
 
 if __name__ == "__main__":
     results = exercise_3()
-    
+
     for name, result in results.items():
         print(f"{name}: {result}")
 ```
+
+-> Affichage console :
+
+===========================
+total_images: 147
+total_size_kb: 1848819
+thumbnails_created: 147
+presigned_url: [None](http://localhost:9000/products-images/computers/laptops/3957b46edf0c11f0901a908d6e62deca/.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20251222%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251222T094027Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=884a29a5b8e2f2b068c00799d095da5e4a99648b8718747f656e4301a2dd234a)
+stats_report: {'tablets': {'count': 21, 'size': 187278}, 'touch': {'count': 9, 'size': 80262}, 'laptops': {'count': 117, 'size': 1043406}}
+backup_created: False
+===========================
 
 ---
 

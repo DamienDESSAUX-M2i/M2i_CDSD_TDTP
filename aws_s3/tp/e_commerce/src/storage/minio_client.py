@@ -92,7 +92,9 @@ class MinIOStorage:
         filename = f"{prefix}_{timestamp}.json"
 
         try:
-            json_bytes = json.dumps(data, indent=2, ensure_ascii=False).encode("utf-8")
+            json_bytes = json.dumps(
+                data, indent=2, ensure_ascii=False, default=str
+            ).encode("utf-8")
 
             self.client.put_object(
                 bucket_name=minio_config.bucket_backups,

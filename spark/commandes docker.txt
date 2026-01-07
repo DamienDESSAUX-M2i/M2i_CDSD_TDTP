@@ -1,0 +1,13 @@
+docker-compose up -d => Dans le dossier docker-hadoop
+docker-compose down => pour supprimer les conteneurs (dans le meme dossier que le fichier docker-compose)
+docker exec -it <id_container> bash => pour entrer dans un conteneur docker en bash (par exemple)
+docker cp source <id_container>:path => pour copier un dossier du host vers un conteneur
+
+Pour installer pyspark 
+
+- Télécharger pyspark avec la commande : pip install pyspark
+- Ajouter la variable d'environnement : PYSPARK_PYTHON => Mettre le chemin vers la version de python
+
+Bibliothèques de graphiques en python :
+- MatplotLib
+- Seaborn

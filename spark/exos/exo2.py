@@ -1,7 +1,9 @@
 from pyspark.sql import SparkSession
 
+builder: SparkSession.Builder = SparkSession.builder
+
 # Créer la session Spark
-spark = SparkSession.builder.master("local").appName("exo2").getOrCreate()
+spark = builder.master("local").appName("exo2").getOrCreate()
 
 # Récupérer le SparkContext
 sc = spark.sparkContext

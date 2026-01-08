@@ -1,7 +1,9 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import avg, col, max, min
 
-spark = SparkSession.builder.master("local").appName("exo3").getOrCreate()
+builder: SparkSession.Builder = SparkSession.builder
+
+spark = builder.master("local").appName("exo3").getOrCreate()
 
 df = (
     spark.read.option("header", "true")

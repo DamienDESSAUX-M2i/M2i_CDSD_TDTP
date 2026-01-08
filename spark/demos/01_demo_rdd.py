@@ -1,8 +1,10 @@
 from pyspark.sql import SparkSession
 
+builder: SparkSession.Builder = SparkSession.builder
+
 # Créer une session
 spark = (
-    SparkSession.builder.master("local").appName("demo-rdd").getOrCreate()
+    builder.master("local").appName("demo-rdd").getOrCreate()
 )  # local ou spark://localhost:7000 ou hadoop://...
 
 # Récupérer le SparkContext

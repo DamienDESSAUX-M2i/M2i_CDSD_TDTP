@@ -3,8 +3,9 @@ from datetime import datetime
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import avg, col, lit, max, min
 
-# Créer la session Spark
-spark = SparkSession.builder.master("local").appName("demo-df").getOrCreate()
+builder: SparkSession.Builder = SparkSession.builder
+
+spark = builder.master("local").appName("demo_df").getOrCreate()
 
 df = (
     spark.read.option("header", "true")

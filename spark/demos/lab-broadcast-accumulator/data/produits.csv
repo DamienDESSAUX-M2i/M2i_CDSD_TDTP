@@ -1,0 +1,6 @@
+produit_id,nom_produit,categorie,prix_achat,taux_marge
+P001,Laptop Pro 15,Informatique,120.00,0.25
+P002,Smartphone X12,Mobile,150.00,0.33
+P003,Casque Audio HD,Audio,45.00,0.68
+P004,Ecran 27 pouces,Informatique,250.00,0.28
+P005,Souris Gaming,Peripherique,50.00,0.80

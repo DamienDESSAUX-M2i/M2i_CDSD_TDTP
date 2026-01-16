@@ -1,0 +1,27 @@
+client_id,nom,email,ville,date_inscription,segment
+C101,Jean Dupont,jean.dupont@email.fr,Paris,2023-01-15,Premium
+C102,Marie Martin,marie.martin@email.fr,Lyon,2023-02-20,Standard
+C103,Pierre Bernard,pierre.bernard@email.fr,Marseille,2023-03-10,Standard
+C104,Sophie Petit,sophie.petit@email.fr,Paris,2023-04-05,Premium
+C105,Lucas Moreau,lucas.moreau@email.fr,Toulouse,2023-05-12,Gold
+C106,Emma Leroy,emma.leroy@email.fr,Lyon,2023-06-18,Standard
+C107,Hugo Roux,hugo.roux@email.fr,Marseille,2023-07-22,Standard
+C108,Lea Simon,lea.simon@email.fr,Nice,2023-08-30,Premium
+C109,Nathan Michel,nathan.michel@email.fr,Paris,2023-09-14,Gold
+C110,Chloe Laurent,chloe.laurent@email.fr,Lille,2023-10-25,Standard
+C111,Louis Lefebvre,louis.lefebvre@email.fr,Nantes,2023-11-08,Premium
+C112,Jade Garcia,jade.garcia@email.fr,Montpellier,2023-12-03,Standard
+C113,Gabriel Thomas,gabriel.thomas@email.fr,Paris,2024-01-10,Gold
+C114,Manon Robert,manon.robert@email.fr,Lyon,2024-01-12,Standard
+C115,Raphael Richard,raphael.richard@email.fr,Rennes,2024-01-14,Premium
+C116,Camille Durand,camille.durand@email.fr,Bordeaux,2024-01-15,Standard
+C117,Arthur Dubois,arthur.dubois@email.fr,Toulouse,2024-01-16,Gold
+C118,Ines Bertrand,ines.bertrand@email.fr,Paris,2024-01-17,Standard
+C119,Theo Morel,theo.morel@email.fr,Marseille,2024-01-18,Premium
+C120,Lola Fournier,lola.fournier@email.fr,Nice,2024-01-19,Standard
+C121,Adam Girard,adam.girard@email.fr,Paris,2024-01-20,Gold
+C122,Eva Bonnet,eva.bonnet@email.fr,Lille,2024-01-21,Standard
+C123,Tom Dupuis,tom.dupuis@email.fr,Strasbourg,2024-01-22,Premium
+C124,Clara Lambert,clara.lambert@email.fr,Nantes,2024-01-23,Standard
+C125,Jules Fontaine,jules.fontaine@email.fr,Montpellier,2024-01-24,Gold
+C126,Alice Rousseau,alice.rousseau@email.fr,Paris,2024-01-25,Premium

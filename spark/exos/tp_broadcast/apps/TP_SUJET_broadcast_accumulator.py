@@ -139,12 +139,19 @@ BONUS : QUESTIONS DE RÉFLEXION
 ================================================================================
 
 B.1 Dans quel cas la broadcast variable n'est-elle PAS recommandée ?
+-> Lorsque la taille des données est trop importante.
 
 B.2 Pourquoi les accumulators ne sont-ils pas fiables pour la logique métier ?
+-> Spark peut rééxécuter une tâche or les accumulateurs ne sont pas réinitialisé.
+Le résultat d'un accumulateur n'est donc pas certain et peut varier d'une exécution à l'autre.
 
 B.3 Quelle est la différence entre cache() et broadcast() ?
+-> les données en cache sont réparties sur le cluster tandis que les données en broadcast sont dupliquées sur chaque éxécutant.
+Le broadcast est réservé aux petites données tandis que le cache peut être utilisé pour des volumes plus importants.
+Le cache est destiné à une optimisation de performance calcul tandis que le broadcast est destiné à une optimisation de communication.
 
 B.4 Comment gérer un accumulator pour des opérations non commutatives ?
+-> On n'utilise pas d'accumulateur pour du non commutatif à cause du parallélisme des calculs.
 
 ================================================================================
 """
@@ -604,14 +611,31 @@ print("=" * 70)
 
 # Comparer les approches avec et sans optimisation.
 
+
 # 7.1 SANS optimisation :
 #     - Jointure classique entre achats et clients
 #     - Filtrage des erreurs avec plusieurs passes
+def validation(row) -> bool:
+    # Client inconnu
+    if not row["client_id"]:
+        return False
+    # Montant invalide
+    if not row["montant"]:
+        return False
+    try:
+        montant = float(row["montant"])
+        if montant < 0:
+            return False
+    except:
+        return False
+    return True
+
+
 t7 = time.time()
 
 achats_clients_cleaned = achats_clients.withColumn(
     "montant", spark_func.col("montant").cast(DoubleType())
-).filter(spark_func.col("montant") > 0)
+).filter((spark_func.col("montant") > 0) & (spark_func.col("client_id").isNotNull()))
 achats_clients_cleaned.groupBy("segment").agg(
     spark_func.sum("montant").alias("montant_total"),
     spark_func.avg("montant").alias("avg_montant"),

@@ -5,6 +5,7 @@ from pyspark.sql.types import DoubleType, StringType
 # Session
 builder: SparkSession.Builder = SparkSession.builder
 spark = builder.master("local").appName("tp1").getOrCreate()
+sc = spark.sparkContext
 
 # ===
 # Partie 1 : Chargement et exploration
@@ -55,7 +56,7 @@ print("DataFrame enriched (Profit Margin, Year, Total Value):")
 df_enriched_1["Profit Margin", "Year", "Total Value"].show(10)
 
 # 5. **Mettre ce DataFrame en cache** (vous allez le réutiliser plusieurs fois)
-# TODO
+df_enriched_1.cache()
 
 # ===
 # Partie 3 : UDF - Catégorisation des ventes
@@ -159,13 +160,25 @@ df_enriched_3.groupBy("State").agg(F.sum("Sales").alias("CA")).sort(
 regionCodes = {"East": "EST", "West": "WST", "Central": "CTR", "South": "STH"}
 
 # 2. Broadcaster cette Map avec `spark.sparkContext.broadcast()`
-# TODO
+regionCodesBroadcast = sc.broadcast(regionCodes)
+
 
 # 3. Créer une UDF qui utilise cette broadcast variable pour créer une colonne `Region Code`
-# TODO
+def get_region_code(region: str) -> str:
+    return (
+        regionCodesBroadcast.value[region]
+        if region in regionCodesBroadcast.value.keys()
+        else None
+    )
+
+
+getRegionCode = F.udf(get_region_code, StringType())
+
+df_enriched_4 = df_enriched_3.withColumn("Region Code", getRegionCode(F.col("Region")))
 
 # 4. Afficher quelques lignes avec le code région
-# TODO
+print("Enriched with Region Code:")
+df_enriched_4.show(5)
 
 # ===
 # Partie 7 : Broadcast Variable - Coefficients de priorité
@@ -175,10 +188,25 @@ regionCodes = {"East": "EST", "West": "WST", "Central": "CTR", "South": "STH"}
 categoryPriority = {"Technology": 1.5, "Furniture": 1.2, "Office Supplies": 1.0}
 
 # 2. Broadcaster cette Map
-# TODO
+categoryPriorityBroadcast = sc.broadcast(categoryPriority)
+
 
 # 3. Créer une UDF qui multiplie le `Profit` par le coefficient de sa catégorie pour créer une colonne `Weighted Profit`
-# TODO
+def compute_weighted_profit(category: str, profit: float) -> float:
+    weight = (
+        categoryPriorityBroadcast.value[category]
+        if category in categoryPriorityBroadcast.value.keys()
+        else 1
+    )
+    return weight * profit
+
+
+computeWeightedProfit = F.udf(compute_weighted_profit, DoubleType())
+
+df_enriched_5 = df_enriched_4.withColumn(
+    "Weighted Profit", computeWeightedProfit(F.col("Category"), F.col("Profit"))
+)
 
 # 4. Calculer le weighted profit total par catégorie
-# TODO
+print("Enriched with Weight Profit")
+df_enriched_5.show(5)

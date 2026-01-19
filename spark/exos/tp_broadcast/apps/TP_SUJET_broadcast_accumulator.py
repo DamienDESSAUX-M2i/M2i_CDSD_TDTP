@@ -198,23 +198,29 @@ print("EXERCICE 1 : CHARGEMENT DES DONNÉES")
 print("=" * 70)
 
 # 1.1 Charger les deux fichiers CSV dans des DataFrames
-clients = (
-    spark.read.option("header", "true")
-    .option("inferSchema", "true")
-    .csv("/data/clients.csv")
-)
+clients = spark.read.csv("/data/clients.csv", header=True, inferSchema=True)
+achats = spark.read.csv("/data/achats.csv", header=True, inferSchema=True)
 
-achats = (
-    spark.read.option("header", "true")
-    .option("inferSchema", "true")
-    .csv("/data/achats.csv")
-)
+# clients = (
+#     spark.read.option("header", "true")
+#     .option("inferSchema", "true")
+#     .csv("/data/clients.csv")
+# )
+
+# achats = (
+#     spark.read.option("header", "true")
+#     .option("inferSchema", "true")
+#     .csv("/data/achats.csv")
+# )
 
 # 1.2 Afficher le schéma et les premières lignes de chaque DataFrame
-print("\nClient Schema:")
-print(clients.schema)
-print("\nAchats Schema:")
-print(achats.schema)
+clients.printSchema()
+achats.printSchema()
+
+# print("\nClient Schema:")
+# print(clients.schema)
+# print("\nAchats Schema:")
+# print(achats.schema)
 
 # 1.3 Compter le nombre de lignes dans chaque fichier
 print("\nNumber of lines in clients:")
@@ -254,11 +260,15 @@ map_tva_broadcast = sc.broadcast(MAP_TVA)
 
 # 2.3 Créer une UDF qui utilise la broadcast variable pour récupérer le taux
 def get_rate(country: str) -> float:
-    return (
-        map_tva_broadcast.value[country]
-        if country in map_tva_broadcast.value.keys()
-        else 0.0
-    )
+    return map_tva_broadcast.value.get(country, 0.0)
+
+
+# def get_rate(country: str) -> float:
+#     return (
+#         map_tva_broadcast.value[country]
+#         if country in map_tva_broadcast.value.keys()
+#         else 0.0
+#     )
 
 
 getRate = spark_func.udf(get_rate, DoubleType())
@@ -384,7 +394,7 @@ clients_inconnus = sc.accumulator(0)
 def parsing_row(row):
     # Montant
     montant: str = row["montant"]
-    if not montant:
+    if montant is None or montant.strip() == "":
         montants_invalides.add(1)
         montants_vides.add(1)
         return None
@@ -648,11 +658,11 @@ t8 = time.time()
 #     - Accumulators pour le comptage d'erreurs
 
 # 7.3 Mesurer et comparer les temps d'exécution
-time_with_optimisation = t1 - t2 + t6 - t5
+time_with_optimisation = t2 - t1 + t6 - t5
 time_without_optimisation = t4 - t3 + t8 - t7
 print("\nComparison")
-print(" AVEC optimisation: ", t1 - t2 + t6 - t5)
-print(" SANS optimisation: ", t4 - t3 + t8 - t7)
+print(" AVEC optimisation: ", time_with_optimisation)
+print(" SANS optimisation: ", time_without_optimisation)
 print(
     " gain (en %): ",
     round(

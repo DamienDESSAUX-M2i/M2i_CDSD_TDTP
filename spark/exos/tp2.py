@@ -4,7 +4,7 @@ from pyspark.sql.types import DoubleType, StringType
 
 # Session
 builder: SparkSession.Builder = SparkSession.builder
-spark = builder.master("local").appName("tp1").getOrCreate()
+spark = builder.master("local").appName("tp2").getOrCreate()
 sc = spark.sparkContext
 
 # ===
@@ -16,7 +16,11 @@ df = (
     spark.read.option("header", "true")
     .option("inferSchema", "true")
     .option("sep", ",")
+    .option("quote", '"')  # Important : Pour la gestion des doubles guillemets
     .option("escape", '"')  # Important : Pour la gestion des doubles guillemets
+    .option(
+        "multiline", "true"
+    )  # Important : Pour la gestion de données sur plusieurs lignes
     .csv(
         "C:/Users/Administrateur/Documents/M2i_CDSD_TDTP/spark/data/SampleSuperstore.csv"
     )
@@ -24,7 +28,8 @@ df = (
 
 # 2. Afficher le schéma du DataFrame
 print("Schema:")
-print(df.schema)
+df.printSchema()
+# print(df.schema)
 
 # 3. Afficher les 20 premières lignes
 print("DataFrame sample_df:")
@@ -157,7 +162,12 @@ df_enriched_3.groupBy("State").agg(F.sum("Sales").alias("CA")).sort(
 # ===
 
 # 1. Créer une Map qui associe chaque région à un code :
-regionCodes = {"East": "EST", "West": "WST", "Central": "CTR", "South": "STH"}
+regionCodes = {
+    "East": "EST",
+    "West": "WST",
+    "Central": "CTR",
+    "South": "STH",
+}
 
 # 2. Broadcaster cette Map avec `spark.sparkContext.broadcast()`
 regionCodesBroadcast = sc.broadcast(regionCodes)
@@ -208,5 +218,13 @@ df_enriched_5 = df_enriched_4.withColumn(
 )
 
 # 4. Calculer le weighted profit total par catégorie
-print("Enriched with Weight Profit")
-df_enriched_5.show(5)
+print("Group by Category total Weight Profit")
+df_enriched_5.groupBy("Category").agg(
+    F.sum(F.col("Profit")).alias("Profit Total"),
+    F.sum(F.col("Weighted Profit")).alias("Weighted Profit Total"),
+).show()
+
+# Terminate script
+spark.catalog.clearCache()
+df_enriched_1.unpersist()
+spark.stop()

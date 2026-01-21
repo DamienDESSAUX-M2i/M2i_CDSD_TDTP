@@ -1,0 +1,166 @@
+produit,id_commande,date,client,quantite,prix_unitaire,region,statut,montant_total
+Smartphone,1,2026-01-16,David Bernard,9.0,599.0749999999999,Île-de-France,Livrée,5391.674999999999
+Moniteur,2,2025-11-16,Isabelle Laurent,10.0,268.45,Auvergne-Rhône-Alpes,En préparation,2684.5
+Moniteur,3,2025-12-31,François Dubois,3.0,265.35,Hauts-de-France,Livrée,796.0500000000001
+Souris,4,2025-12-02,client_anonyme,2.0,30.1735,Nouvelle-Aquitaine,Livrée,60.347
+Écouteurs,6,2025-12-19,Gabrielle Moreau,1.0,72.5,Nouvelle-Aquitaine,Livrée,72.5
+Webcam,7,2025-11-08,François Dubois,8.0,83.5,Hauts-de-France,Annulée,668.0
+Tablette,8,2025-11-26,Gabrielle Moreau,2.0,428.88,Auvergne-Rhône-Alpes,En préparation,857.76
+Laptop,9,2025-12-01,Hugo Simon,2.0,906.64,Nouvelle-Aquitaine,Livrée,1813.28
+Tablette,10,2025-12-30,Emma Petit,2.0,383.87,Hauts-de-France,En cours,767.74
+Souris,11,2025-12-30,Isabelle Laurent,2.0,32.26,Nouvelle-Aquitaine,En cours,64.52
+Écouteurs,13,2025-11-03,David Bernard,7.0,82.39,Hauts-de-France,En préparation,576.73
+Moniteur,16,2025-11-20,David Bernard,7.0,261.44,Île-de-France,Livrée,1830.08
+Écouteurs,17,2025-12-07,Bob Martin,3.0,76.45,Île-de-France,En préparation,229.35000000000002
+Laptop,18,2025-11-10,client_anonyme,4.0,897.41,Occitanie,Livrée,3589.64
+Webcam,19,2026-01-19,Emma Petit,9.0,89.75,Auvergne-Rhône-Alpes,Livrée,807.75
+Laptop,20,2025-11-11,client_anonyme,9.0,905.59,Non spécifiée,Livrée,8150.31
+Écouteurs,21,2026-01-11,David Bernard,1.0,78.7,Hauts-de-France,Annulée,78.7
+Laptop,24,2025-11-11,Jean Lefebvre,9.0,929.4,Auvergne-Rhône-Alpes,Annulée,8364.6
+Écouteurs,25,2026-01-06,Claire Rousseau,4.0,85.64,Nouvelle-Aquitaine,Livrée,342.56
+Tablette,27,2026-01-05,client_anonyme,6.0,371.84,Nouvelle-Aquitaine,Annulée,2231.04
+Smartphone,28,2026-01-14,David Bernard,9.0,588.76,Auvergne-Rhône-Alpes,En cours,5298.84
+Souris,29,2025-12-28,Alice Dupont,7.0,32.17,Nouvelle-Aquitaine,En cours,225.19
+Écouteurs,30,2026-01-06,Alice Dupont,8.0,85.12,Auvergne-Rhône-Alpes,Livrée,680.96
+Clavier,31,2025-11-29,Bob Martin,9.0,54.8,Île-de-France,Livrée,493.2
+Laptop,33,2025-11-07,Alice Dupont,9.0,979.24,Auvergne-Rhône-Alpes,Annulée,8813.16
+Smartphone,34,2025-10-26,Jean Lefebvre,5.0,620.02,Nouvelle-Aquitaine,En cours,3100.1
+Clavier,35,2025-10-26,Claire Rousseau,1.0,47.09,Hauts-de-France,Annulée,47.09
+Tablette,36,2025-11-24,Isabelle Laurent,5.0,410.63,Auvergne-Rhône-Alpes,Annulée,2053.15
+Laptop,38,2025-12-01,David Bernard,2.0,849.38,Hauts-de-France,En préparation,1698.76
+Webcam,40,2025-11-10,Claire Rousseau,4.0,85.98,Occitanie,En cours,343.92
+Souris,41,2026-01-10,David Bernard,2.0,28.38,Auvergne-Rhône-Alpes,Livrée,56.76
+Moniteur,43,2025-12-05,Gabrielle Moreau,9.0,269.88,Nouvelle-Aquitaine,En préparation,2428.92
+Webcam,44,2025-12-01,Gabrielle Moreau,10.0,97.31,Île-de-France,Livrée,973.1
+Laptop,46,2025-11-27,Bob Martin,6.0,822.34,Île-de-France,Livrée,4934.04
+Tablette,47,2025-12-25,Jean Lefebvre,2.0,377.43,Nouvelle-Aquitaine,En cours,754.86
+Smartphone,48,2026-01-05,Claire Rousseau,5.0,648.95,Auvergne-Rhône-Alpes,Livrée,3244.75
+Smartphone,49,2025-10-31,Emma Petit,10.0,581.65,Nouvelle-Aquitaine,Livrée,5816.5
+Webcam,50,2025-12-07,client_anonyme,3.0,95.91,Occitanie,En cours,287.73
+Webcam,51,2025-10-28,Isabelle Laurent,10.0,96.32,Île-de-France,Annulée,963.1999999999999
+Moniteur,52,2025-12-19,Jean Lefebvre,8.0,234.08,Nouvelle-Aquitaine,Annulée,1872.64
+Écouteurs,53,2025-11-04,Emma Petit,4.0,84.12,Occitanie,En préparation,336.48
+Clavier,54,2026-01-08,Gabrielle Moreau,6.0,50.3,Hauts-de-France,Annulée,301.79999999999995
+Écouteurs,55,2025-11-22,Emma Petit,9.0,83.03,Occitanie,Annulée,747.27
+Clavier,56,2025-11-13,Bob Martin,3.0,52.07,Île-de-France,Livrée,156.21
+Laptop,57,2025-10-22,Hugo Simon,8.0,871.32,Nouvelle-Aquitaine,En préparation,6970.56
+Moniteur,59,2025-11-27,Jean Lefebvre,8.0,254.42,Hauts-de-France,Livrée,2035.36
+Clavier,60,2026-01-07,David Bernard,3.0,50.51,Occitanie,En préparation,151.53
+Clavier,61,2025-11-20,David Bernard,8.0,50.05277777777778,Nouvelle-Aquitaine,En cours,400.4222222222222
+Tablette,62,2025-11-11,Claire Rousseau,2.0,407.59,Nouvelle-Aquitaine,En préparation,815.18
+Webcam,63,2025-10-23,Gabrielle Moreau,10.0,90.0251851851852,Nouvelle-Aquitaine,Annulée,900.2518518518519
+Webcam,65,2025-12-27,Gabrielle Moreau,8.0,86.99,Auvergne-Rhône-Alpes,Annulée,695.92
+Laptop,66,2025-11-17,Gabrielle Moreau,6.0,830.86,Hauts-de-France,Livrée,4985.16
+Souris,67,2025-11-11,Alice Dupont,8.0,31.55,Hauts-de-France,En cours,252.4
+Écouteurs,68,2025-11-24,Hugo Simon,5.0,80.83,Île-de-France,En préparation,404.15
+Clavier,69,2025-10-29,Hugo Simon,5.0,49.82,Occitanie,En cours,249.1
+Clavier,70,2025-11-04,Claire Rousseau,7.0,52.87,Île-de-France,Annulée,370.09
+Webcam,71,2025-11-05,Hugo Simon,6.0,94.72,Nouvelle-Aquitaine,En cours,568.3199999999999
+Souris,73,2026-01-15,client_anonyme,8.0,30.1735,Île-de-France,En cours,241.388
+Clavier,74,2025-10-28,Bob Martin,7.0,53.51,Hauts-de-France,En préparation,374.57
+Laptop,75,2025-10-31,Hugo Simon,4.0,975.76,Île-de-France,En préparation,3903.04
+Clavier,76,2025-10-30,Bob Martin,1.0,45.55,Occitanie,En cours,45.55
+Smartphone,77,2025-11-28,Claire Rousseau,7.0,568.89,Auvergne-Rhône-Alpes,En cours,3982.23
+Webcam,78,2025-12-18,Alice Dupont,9.0,88.94,Hauts-de-France,Annulée,800.46
+Écouteurs,79,2025-11-26,Hugo Simon,8.0,81.537,Nouvelle-Aquitaine,Annulée,652.296
+Moniteur,80,2025-12-13,client_anonyme,10.0,263.91,Hauts-de-France,En préparation,2639.1000000000004
+Souris,81,2025-12-14,David Bernard,4.0,31.06,Auvergne-Rhône-Alpes,Livrée,124.24
+Laptop,82,2025-10-29,client_anonyme,3.0,904.8636363636361,Occitanie,En cours,2714.5909090909086
+Clavier,83,2025-11-11,François Dubois,5.0,54.43,Nouvelle-Aquitaine,Annulée,272.15
+Écouteurs,84,2025-11-21,Claire Rousseau,7.0,84.86,Occitanie,Livrée,594.02
+Souris,85,2026-01-04,Emma Petit,2.0,30.71,Nouvelle-Aquitaine,En cours,61.42
+Moniteur,87,2026-01-02,François Dubois,3.0,257.74,Hauts-de-France,En préparation,773.22
+Webcam,88,2025-12-15,client_anonyme,4.0,82.78,Hauts-de-France,Annulée,331.12
+Tablette,91,2025-11-04,client_anonyme,9.0,373.95,Île-de-France,En cours,3365.5499999999997
+Écouteurs,93,2025-12-04,Bob Martin,1.0,86.53,Nouvelle-Aquitaine,En préparation,86.53
+Moniteur,94,2026-01-16,client_anonyme,2.0,270.47,Île-de-France,Annulée,540.94
+Souris,95,2026-01-11,client_anonyme,10.0,29.71,Île-de-France,Livrée,297.1
+Écouteurs,96,2025-10-28,Isabelle Laurent,4.0,85.23,Île-de-France,Annulée,340.92
+Webcam,97,2025-10-26,Claire Rousseau,1.0,90.0251851851852,Nouvelle-Aquitaine,En cours,90.0251851851852
+Smartphone,98,2025-11-05,Isabelle Laurent,7.0,626.52,Hauts-de-France,Annulée,4385.639999999999
+Écouteurs,99,2025-11-07,Claire Rousseau,6.0,77.87,Hauts-de-France,En cours,467.22
+Laptop,100,2025-11-09,Jean Lefebvre,5.0,904.8636363636361,Nouvelle-Aquitaine,Annulée,4524.318181818181
+Souris,102,2025-12-07,client_anonyme,10.0,32.29,Hauts-de-France,Livrée,322.9
+Webcam,103,2025-12-16,Gabrielle Moreau,4.0,83.04,Nouvelle-Aquitaine,En préparation,332.16
+Moniteur,105,2026-01-19,Gabrielle Moreau,4.0,266.66,Île-de-France,En préparation,1066.64
+Souris,106,2026-01-14,Hugo Simon,10.0,30.83,Occitanie,Livrée,308.29999999999995
+Souris,107,2025-12-29,Jean Lefebvre,1.0,30.52,Occitanie,Annulée,30.52
+Smartphone,108,2025-12-22,Claire Rousseau,4.0,581.92,Auvergne-Rhône-Alpes,En cours,2327.68
+Smartphone,109,2025-12-18,Jean Lefebvre,8.0,607.64,Hauts-de-France,Annulée,4861.12
+Clavier,111,2025-11-23,client_anonyme,1.0,50.06,Hauts-de-France,Livrée,50.06
+Tablette,112,2025-11-07,François Dubois,8.0,394.39071428571424,Nouvelle-Aquitaine,Livrée,3155.125714285714
+Webcam,113,2025-12-28,client_anonyme,10.0,87.7,Occitanie,Annulée,877.0
+Moniteur,115,2025-11-06,François Dubois,1.0,243.82,Auvergne-Rhône-Alpes,Livrée,243.82
+Tablette,116,2025-11-26,Alice Dupont,6.0,398.89,Auvergne-Rhône-Alpes,En cours,2393.34
+Clavier,118,2026-01-14,David Bernard,8.0,47.38,Occitanie,En cours,379.04
+Moniteur,119,2025-11-07,Hugo Simon,7.0,265.83,Auvergne-Rhône-Alpes,Annulée,1860.81
+Écouteurs,121,2026-01-01,Bob Martin,6.0,78.63,Nouvelle-Aquitaine,En cours,471.78
+Smartphone,122,2026-01-09,Alice Dupont,6.0,556.5,Occitanie,En cours,3339.0
+Laptop,123,2025-11-20,Alice Dupont,3.0,940.89,Île-de-France,Annulée,2822.67
+Webcam,124,2026-01-04,client_anonyme,4.0,81.29,Auvergne-Rhône-Alpes,En cours,325.16
+Tablette,125,2026-01-19,David Bernard,2.0,388.84,Hauts-de-France,Livrée,777.68
+Souris,126,2025-11-20,client_anonyme,1.0,27.4,Île-de-France,Annulée,27.4
+Webcam,127,2025-12-05,Claire Rousseau,8.0,95.6,Occitanie,Livrée,764.8
+Clavier,128,2026-01-14,Alice Dupont,9.0,45.36,Nouvelle-Aquitaine,Annulée,408.24
+Souris,129,2026-01-13,François Dubois,7.0,32.36,Auvergne-Rhône-Alpes,En préparation,226.51999999999998
+Smartphone,130,2025-12-03,Isabelle Laurent,2.0,659.4,Nouvelle-Aquitaine,Annulée,1318.8
+Souris,132,2026-01-12,client_anonyme,3.0,27.85,Occitanie,Livrée,83.55000000000001
+Laptop,133,2025-12-20,François Dubois,8.0,876.95,Hauts-de-France,En cours,7015.6
+Webcam,135,2025-10-21,Jean Lefebvre,3.0,89.13,Occitanie,Livrée,267.39
+Clavier,136,2025-12-10,Bob Martin,3.0,54.26,Nouvelle-Aquitaine,En cours,162.78
+Laptop,137,2025-12-25,David Bernard,10.0,954.65,Hauts-de-France,Livrée,9546.5
+Tablette,139,2025-11-10,Claire Rousseau,1.0,401.44,Auvergne-Rhône-Alpes,Annulée,401.44
+Smartphone,140,2025-12-22,Isabelle Laurent,9.0,614.99,Île-de-France,En cours,5534.91
+Souris,141,2025-11-06,client_anonyme,10.0,30.1735,Île-de-France,Livrée,301.735
+Moniteur,142,2025-11-07,David Bernard,1.0,256.35,Nouvelle-Aquitaine,En préparation,256.35
+Tablette,144,2025-12-10,François Dubois,9.0,385.52,Nouvelle-Aquitaine,En préparation,3469.68
+Moniteur,145,2026-01-07,client_anonyme,3.0,271.68,Auvergne-Rhône-Alpes,En cours,815.04
+Smartphone,146,2025-11-15,Emma Petit,9.0,568.88,Île-de-France,Livrée,5119.92
+Laptop,147,2025-11-04,Hugo Simon,7.0,857.6,Occitanie,Annulée,6003.2
+Souris,149,2026-01-07,François Dubois,4.0,29.4,Non spécifiée,Livrée,117.6
+Tablette,150,2025-12-08,Isabelle Laurent,10.0,391.43,Nouvelle-Aquitaine,Annulée,3914.3
+Laptop,151,2025-11-15,Jean Lefebvre,2.0,915.06,Île-de-France,En préparation,1830.12
+Laptop,152,2025-10-28,Jean Lefebvre,3.0,939.8,Occitanie,En cours,2819.3999999999996
+Smartphone,153,2025-12-19,client_anonyme,8.0,558.16,Occitanie,En préparation,4465.28
+Souris,154,2026-01-12,Isabelle Laurent,8.0,28.87,Hauts-de-France,Annulée,230.96
+Écouteurs,155,2025-10-25,Emma Petit,5.0,75.59,Nouvelle-Aquitaine,Annulée,377.95000000000005
+Clavier,156,2025-10-23,François Dubois,10.0,48.79,Nouvelle-Aquitaine,En cours,487.9
+Webcam,157,2025-12-14,Bob Martin,8.0,95.89,Hauts-de-France,Annulée,767.12
+Écouteurs,158,2025-11-02,David Bernard,1.0,81.537,Occitanie,Livrée,81.537
+Tablette,159,2026-01-02,client_anonyme,8.0,375.95,Nouvelle-Aquitaine,Annulée,3007.6
+Laptop,160,2026-01-08,David Bernard,3.0,960.76,Île-de-France,En préparation,2882.2799999999997
+Laptop,161,2025-12-27,Emma Petit,10.0,904.8636363636361,Nouvelle-Aquitaine,En préparation,9048.636363636362
+Webcam,162,2025-11-11,Claire Rousseau,2.0,94.15,Auvergne-Rhône-Alpes,Livrée,188.3
+Moniteur,163,2025-12-13,David Bernard,9.0,245.03,Auvergne-Rhône-Alpes,En préparation,2205.27
+Webcam,164,2025-12-19,client_anonyme,6.0,94.0,Non spécifiée,Annulée,564.0
+Moniteur,165,2026-01-12,Hugo Simon,5.0,256.93,Nouvelle-Aquitaine,En cours,1284.65
+Souris,166,2026-01-02,Hugo Simon,9.0,31.53,Auvergne-Rhône-Alpes,En cours,283.77
+Souris,167,2025-11-04,Bob Martin,5.0,30.1735,Hauts-de-France,En cours,150.8675
+Écouteurs,168,2025-12-31,Isabelle Laurent,8.0,81.537,Île-de-France,En préparation,652.296
+Clavier,169,2025-11-27,Alice Dupont,7.0,45.02,Île-de-France,Livrée,315.14000000000004
+Smartphone,170,2025-10-22,client_anonyme,8.0,599.0749999999999,Auvergne-Rhône-Alpes,En préparation,4792.599999999999
+Tablette,171,2025-12-02,Gabrielle Moreau,6.0,394.39071428571424,Occitanie,En cours,2366.3442857142854
+Webcam,172,2025-12-22,Alice Dupont,9.0,87.82,Occitanie,Annulée,790.3799999999999
+Laptop,174,2026-01-07,Hugo Simon,1.0,852.17,Île-de-France,En cours,852.17
+Souris,175,2025-12-13,Jean Lefebvre,3.0,30.12,Nouvelle-Aquitaine,Livrée,90.36
+Moniteur,176,2025-11-05,Claire Rousseau,1.0,272.07,Hauts-de-France,Annulée,272.07
+Webcam,177,2025-11-28,client_anonyme,4.0,93.73,Île-de-France,En préparation,374.92
+Écouteurs,178,2025-11-09,Gabrielle Moreau,2.0,85.54,Auvergne-Rhône-Alpes,Livrée,171.08
+Écouteurs,179,2025-10-25,Alice Dupont,10.0,80.93,Nouvelle-Aquitaine,Annulée,809.3000000000001
+Smartphone,180,2026-01-18,David Bernard,8.0,623.46,Occitanie,En cours,4987.68
+Clavier,181,2025-12-14,Isabelle Laurent,9.0,49.65,Occitanie,Annulée,446.84999999999997
+Écouteurs,182,2025-12-03,Alice Dupont,1.0,86.95,Occitanie,Annulée,86.95
+Webcam,183,2025-12-08,Jean Lefebvre,6.0,95.78,Occitanie,En préparation,574.6800000000001
+Laptop,184,2025-12-05,Isabelle Laurent,2.0,930.27,Occitanie,En cours,1860.54
+Écouteurs,185,2025-12-21,client_anonyme,6.0,81.537,Hauts-de-France,En préparation,489.22200000000004
+Tablette,187,2025-12-28,client_anonyme,10.0,425.21,Occitanie,Livrée,4252.099999999999
+Écouteurs,188,2025-11-29,David Bernard,2.0,85.72,Île-de-France,En préparation,171.44
+Smartphone,189,2025-11-10,Alice Dupont,7.0,579.74,Île-de-France,Livrée,4058.1800000000003
+Smartphone,190,2025-10-23,Hugo Simon,5.0,607.61,Non spécifiée,Annulée,3038.05
+Souris,192,2026-01-02,Bob Martin,4.0,27.45,Hauts-de-France,En préparation,109.8
+Webcam,193,2025-12-09,client_anonyme,6.0,87.75,Hauts-de-France,En préparation,526.5
+Clavier,195,2026-01-19,Hugo Simon,1.0,49.48,Occitanie,Livrée,49.48
+Clavier,197,2025-12-29,Claire Rousseau,3.0,50.05277777777778,Occitanie,Annulée,150.15833333333333
+Webcam,198,2026-01-10,David Bernard,4.0,83.43,Non spécifiée,En préparation,333.72
+Moniteur,199,2025-11-01,François Dubois,10.0,241.02,Auvergne-Rhône-Alpes,En préparation,2410.2000000000003
+Webcam,200,2025-11-30,Emma Petit,4.0,86.04,Nouvelle-Aquitaine,Livrée,344.16

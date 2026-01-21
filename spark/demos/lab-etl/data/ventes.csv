@@ -1,0 +1,17 @@
+id,date,produit,quantite,prix_unitaire,client
+1,2024-01-15,Laptop,2,899.99,Dupont
+2,2024-01-16,Souris,5,25.50,Martin
+3,2024-01-16,,3,15.00,Bernard
+4,2024-01-17,Clavier,0,45.00,Dubois
+5,2024-01-18,Ecran,1,299.99,
+6,2024-01-18,Laptop,-1,1099.99,Laurent
+7,2024-01-19,Souris,10,27.50,Martin
+8,,Clavier,2,45.00,Petit
+9,2024-01-20,Ecran,3,299.99,Dupont
+10,2024-01-20,Laptop,1,699.99,NULL
+11,2024-01-21,Webcam,4,79.99,Richard
+12,2024-01-21,Souris,6,18.0,Martin
+13,2024-01-22,Clavier,2,,Moreau
+14,2024-01-22,Ecran,2,299.99,Dupont
+15,2024-01-23,Laptop,3,1399.99,Simon
+13,2024-01-22,Clavier,2,99.0,Richard

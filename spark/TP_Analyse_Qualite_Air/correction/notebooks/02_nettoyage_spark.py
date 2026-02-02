@@ -1,9 +1,10 @@
+import os
+import sys
+from datetime import datetime
+
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import DoubleType, TimestampType
-from datetime import datetime
-import os
-import sys
 
 # Configuration des chemins
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -16,12 +17,13 @@ STATIONS_PATH = os.path.join(DATA_DIR, "stations.csv")
 
 def create_spark_session():
     """Cree et configure la session Spark."""
-    spark = SparkSession.builder \
-        .appName("TP Qualite Air - Nettoyage") \
-        .master("local[*]") \
-        .config("spark.driver.memory", "4g") \
-        .config("spark.sql.shuffle.partitions", "8") \
+    spark = (
+        SparkSession.builder.appName("TP Qualite Air - Nettoyage")
+        .master("local[*]")
+        .config("spark.driver.memory", "4g")
+        .config("spark.sql.shuffle.partitions", "8")
         .getOrCreate()
+    )
 
     spark.sparkContext.setLogLevel("WARN")
     return spark
@@ -83,36 +85,35 @@ def main():
 
     # Charger les donnees brutes
     print("\n[1/6] Chargement des donnees brutes...")
-    df_raw = spark.read \
-        .option("header", "true") \
-        .csv(AIR_QUALITY_PATH)
+    df_raw = spark.read.option("header", "true").csv(AIR_QUALITY_PATH)
 
     initial_count = df_raw.count()
     print(f"  Lignes en entree: {initial_count:,}")
 
     # Charger les stations pour avoir la capacite
-    df_stations = spark.read \
-        .option("header", "true") \
-        .option("inferSchema", "true") \
+    df_stations = (
+        spark.read.option("header", "true")
+        .option("inferSchema", "true")
         .csv(STATIONS_PATH)
+    )
 
     # Parser les timestamps multi-formats
     print("\n[2/6] Parsing des timestamps multi-formats...")
     df_with_timestamp = df_raw.withColumn(
-        "timestamp_parsed",
-        parse_timestamp_udf(F.col("timestamp"))
+        "timestamp_parsed", parse_timestamp_udf(F.col("timestamp"))
     )
 
     # Filtrer les timestamps invalides
-    invalid_timestamps = df_with_timestamp.filter(F.col("timestamp_parsed").isNull()).count()
+    invalid_timestamps = df_with_timestamp.filter(
+        F.col("timestamp_parsed").isNull()
+    ).count()
     df_with_timestamp = df_with_timestamp.filter(F.col("timestamp_parsed").isNotNull())
     print(f"  Timestamps invalides supprimes: {invalid_timestamps:,}")
 
     # Convertir les valeurs avec virgule decimale en float
     print("\n[3/6] Conversion des valeurs numeriques...")
     df_with_values = df_with_timestamp.withColumn(
-        "value_clean",
-        clean_value_udf(F.col("value"))
+        "value_clean", clean_value_udf(F.col("value"))
     )
 
     # Filtrer les valeurs non numeriques
@@ -143,14 +144,11 @@ def main():
     print("\n[6/6] Agregation horaire et sauvegarde...")
 
     # Ajouter les colonnes de temps
-    df_with_time = df_dedup.withColumn(
-        "date", F.to_date(F.col("timestamp_parsed"))
-    ).withColumn(
-        "hour", F.hour(F.col("timestamp_parsed"))
-    ).withColumn(
-        "year", F.year(F.col("timestamp_parsed"))
-    ).withColumn(
-        "month", F.month(F.col("timestamp_parsed"))
+    df_with_time = (
+        df_dedup.withColumn("date", F.to_date(F.col("timestamp_parsed")))
+        .withColumn("hour", F.hour(F.col("timestamp_parsed")))
+        .withColumn("year", F.year(F.col("timestamp_parsed")))
+        .withColumn("month", F.month(F.col("timestamp_parsed")))
     )
 
     # Agreger par heure
@@ -160,23 +158,22 @@ def main():
         F.round(F.mean("value_clean"), 2).alias("value_mean"),
         F.round(F.min("value_clean"), 2).alias("value_min"),
         F.round(F.max("value_clean"), 2).alias("value_max"),
-        F.count("*").alias("measurement_count")
+        F.count("*").alias("measurement_count"),
     )
 
     # Joindre avec les informations des stations
     df_final = df_hourly.join(
         df_stations.select("station_id", "station_name", "city", "station_type"),
         on="station_id",
-        how="left"
+        how="left",
     )
 
     # Sauvegarder en Parquet partitionne par date
     # os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    df_final.write \
-        .mode("overwrite") \
-        .partitionBy("date") \
-        .parquet("/data/output")
+    df_final.write.mode("overwrite").partitionBy("date").parquet(
+        "/output/air_quality_clean"
+    )
 
     final_count = df_final.count()
 
@@ -188,7 +185,13 @@ def main():
     print(f"Valeurs negatives:             {negative_count:>12,}")
     print(f"Outliers (>1000):              {outlier_count:>12,}")
     print(f"Doublons:                      {duplicates_removed:>12,}")
-    total_removed = invalid_timestamps + invalid_values + negative_count + outlier_count + duplicates_removed
+    total_removed = (
+        invalid_timestamps
+        + invalid_values
+        + negative_count
+        + outlier_count
+        + duplicates_removed
+    )
     print(f"Total lignes supprimees:       {total_removed:>12,}")
     print(f"Lignes apres agregation:       {final_count:>12,}")
     print(f"\nFichiers Parquet sauvegardes dans: {OUTPUT_DIR}")
@@ -199,15 +202,12 @@ def main():
 
     # Statistiques par polluant
     print("\nStatistiques par polluant:")
-    df_final.groupBy("pollutant") \
-        .agg(
-            F.count("*").alias("records"),
-            F.round(F.mean("value_mean"), 2).alias("avg_value"),
-            F.round(F.min("value_min"), 2).alias("min_value"),
-            F.round(F.max("value_max"), 2).alias("max_value")
-        ) \
-        .orderBy("pollutant") \
-        .show()
+    df_final.groupBy("pollutant").agg(
+        F.count("*").alias("records"),
+        F.round(F.mean("value_mean"), 2).alias("avg_value"),
+        F.round(F.min("value_min"), 2).alias("min_value"),
+        F.round(F.max("value_max"), 2).alias("max_value"),
+    ).orderBy("pollutant").show()
 
     # Fermer Spark
     spark.stop()

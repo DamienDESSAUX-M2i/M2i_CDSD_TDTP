@@ -14,6 +14,7 @@ services:
       - "4040:4040"
     volumes:
       - ./data:/data
+      - ./output:/output
       - ./notebooks:/notebooks
     networks:
       - spark-network
@@ -30,6 +31,7 @@ services:
       - spark-master-test
     volumes:
       - ./data:/data
+      - ./output:/output
       - ./notebooks:/notebooks
     networks:
       - spark-network
@@ -46,6 +48,7 @@ services:
       - spark-master-test
     volumes:
       - ./data:/data
+      - ./output:/output
       - ./notebooks:/notebooks
     networks:
       - spark-network
@@ -62,6 +65,7 @@ services:
       - spark-master-test
     volumes:
       - ./data:/data
+      - ./output:/output
       - ./notebooks:/notebooks
     networks:
       - spark-network
@@ -75,8 +79,9 @@ services:
     ports:
       - "8888:8888"
     volumes:
-      - ./notebooks:/home/jovyan/work
-      - ./data:/home/jovyan/data
+      - ./notebooks:/home/tp_analyse_qualite_air/work
+      - ./data:/home/tp_analyse_qualite_air/data
+      - ./output:/home/tp_analyse_qualite_air/output
     depends_on:
       - spark-master-test
     networks:

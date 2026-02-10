@@ -1,0 +1,78 @@
+# ============================================================================
+# REQUIREMENTS.TXT - Projet Analyse Multivariée
+# ============================================================================
+# 
+# Ce fichier liste toutes les bibliothèques Python nécessaires pour exécuter
+# le projet d'analyse multivariée.
+#
+# INSTALLATION :
+# --------------
+# 1. Créer un environnement virtuel (recommandé) :
+#    python -m venv venv
+#
+# 2. Activer l'environnement :
+#    - Mac/Linux : source venv/bin/activate
+#    - Windows   : venv\Scripts\activate
+#
+# 3. Installer les dépendances :
+#    pip install -r requirements.txt
+#
+# ============================================================================
+
+# --------------------------------------------------------------------------
+# BIBLIOTHÈQUES DE BASE POUR LA DATA SCIENCE
+# --------------------------------------------------------------------------
+
+# NumPy : Calculs numériques et tableaux
+# https://numpy.org/
+numpy>=1.24.0
+
+# Pandas : Manipulation de données (DataFrames)
+# https://pandas.pydata.org/
+pandas>=2.0.0
+
+# --------------------------------------------------------------------------
+# VISUALISATION
+# --------------------------------------------------------------------------
+
+# Matplotlib : Graphiques de base
+# https://matplotlib.org/
+matplotlib>=3.7.0
+
+# Seaborn : Graphiques statistiques élégants
+# https://seaborn.pydata.org/
+seaborn>=0.12.0
+
+# --------------------------------------------------------------------------
+# CALCULS SCIENTIFIQUES ET STATISTIQUES
+# --------------------------------------------------------------------------
+
+# SciPy : Fonctions scientifiques (tests statistiques, etc.)
+# https://scipy.org/
+scipy>=1.10.0
+
+# Scikit-learn : Machine Learning (StandardScaler, PCA, etc.)
+# https://scikit-learn.org/
+scikit-learn>=1.2.0
+
+# Statsmodels : Modèles statistiques (régression, tests, etc.)
+# https://www.statsmodels.org/
+statsmodels>=0.14.0
+
+# --------------------------------------------------------------------------
+# ANALYSE FACTORIELLE
+# --------------------------------------------------------------------------
+
+# Factor Analyzer : Analyse factorielle (KMO, Bartlett, FA)
+# https://factor-analyzer.readthedocs.io/
+factor-analyzer>=0.5.0
+
+# --------------------------------------------------------------------------
+# OPTIONNEL - POUR JUPYTER NOTEBOOKS
+# --------------------------------------------------------------------------
+
+# Jupyter : Si vous voulez utiliser des notebooks
+# jupyter>=1.0.0
+
+# IPython : Console interactive améliorée
+# ipython>=8.0.0

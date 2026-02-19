@@ -3,10 +3,12 @@
 # ===
 
 
+import time
 from itertools import chain
 
 import pyspark.sql.functions as F
 from pyspark.ml import Pipeline, PipelineModel
+from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.ml.feature import (
     Bucketizer,
     Imputer,
@@ -16,6 +18,7 @@ from pyspark.ml.feature import (
     StringIndexer,
     VectorAssembler,
 )
+from pyspark.ml.regression import GBTRegressor, LinearRegression, RandomForestRegressor
 from pyspark.sql import SparkSession
 
 builder: SparkSession.Builder = SparkSession.builder
@@ -143,7 +146,7 @@ std_scaler = StandardScaler(
 
 train_df, test_df = df.randomSplit(weights=[0.8, 0.2], seed=42)
 
-pipeline = Pipeline(
+preprocessing = Pipeline(
     stages=[
         imputer,
         total_rooms,
@@ -156,18 +159,131 @@ pipeline = Pipeline(
 )
 
 # fir uniquement sur train
-pipeline_model = pipeline.fit(train_df)
+preprocessing_model = preprocessing.fit(train_df)
 
 # transform sut train et test
-train_prepared = pipeline_model.transform(train_df)
-test_prepared = pipeline_model.transform(test_df)
+train_prepared = preprocessing_model.transform(train_df)
+test_prepared = preprocessing_model.transform(test_df)
 
 # Sauvegarde de la pipeline
 save_path = "/data/models/demo_house_pipeline"
-pipeline_model.write().overwrite().save(save_path)
+preprocessing_model.write().overwrite().save(save_path)
 
 # Chargement
-pipeline_reload = PipelineModel.load(save_path)
-test_reload = pipeline_reload.transform(test_df)
+preprocessing_reload = PipelineModel.load(save_path)
+test_reload = preprocessing_reload.transform(test_df)
+
+# Evaluateur Régression
+evaluator = RegressionEvaluator(
+    predictionCol="prediction",
+    labelCol="price",
+)
+
+results = {}
+
+# Régression linéaire
+lr = LinearRegression(
+    featuresCol="features_std",
+    labelCol="price",
+)
+
+pipeline_lr = Pipeline(stages=preprocessing.getStages() + [lr])
+
+# Entrainement du modèle
+t0 = time.time()
+model_lr = pipeline_lr.fit(train_df)
+t1 = time.time()
+
+# Prédiction
+pred_lr = model_lr.transform(test_df)
+
+# Métriques
+rmse_lr = evaluator.evaluate(pred_lr, {evaluator.metricName: "rmse"})
+r2_lr = evaluator.evaluate(pred_lr, {evaluator.metricName: "r2"})
+mae_lr = evaluator.evaluate(pred_lr, {evaluator.metricName: "mae"})
+
+results["LinearRegression"] = {"RMSE": rmse_lr, "R²": r2_lr, "MAE": mae_lr}
+
+# RandomForestRegressor
+rf = RandomForestRegressor(
+    featuresCol="features_std",
+    labelCol="price",
+    seed=42,
+)
+
+pipeline_rf = Pipeline(stages=preprocessing.getStages() + [rf])
+
+# Entrainement du modèle
+t0 = time.time()
+model_rf = pipeline_rf.fit(train_df)
+t1 = time.time()
+
+# Prédiction
+pred_rf = model_rf.transform(test_df)
+
+# Métriques
+rmse_rf = evaluator.evaluate(pred_rf, {evaluator.metricName: "rmse"})
+r2_rf = evaluator.evaluate(pred_rf, {evaluator.metricName: "r2"})
+mae_rf = evaluator.evaluate(pred_rf, {evaluator.metricName: "mae"})
+
+results["RandomForestRegressor"] = {"RMSE": rmse_rf, "R²": r2_rf, "MAE": mae_rf}
+
+# Feature importance
+rf_model = model_rf.stages[-1]  # Dernier stage qui est un RandomForestRegressionModel
+importances = rf_model.featureImportances.toArray()
+features_names = [
+    "bedrooms_imp",
+    "bathrooms_imp",
+    "sqft_imp",
+    "total_rooms",
+    "age_bucket",
+    "neighborhood_idx",
+    "house_type_ohe",
+    "garage",
+]
+fi_pairs = sorted(
+    zip(features_names[: len(importances)], importances), key=lambda x: -x[1]
+)
+
+print(f"\n{'=' * 64}")
+print("Feature importance:")
+print(f"{'=' * 64}")
+print(f"{'feature':<30} | {'importance':<10} | {'bar'}")
+for fname, importance in fi_pairs:
+    bar = "*" * int(importance * 100)
+    print(f"{fname:<30} | {importance:<10.2f} | {bar}")
+
+# GBTRegressor
+gbt = GBTRegressor(
+    featuresCol="features_std",
+    labelCol="price",
+    seed=42,
+)
+
+pipeline_gbt = Pipeline(stages=preprocessing.getStages() + [gbt])
+
+# Entrainement du modèle
+t0 = time.time()
+model_gbt = pipeline_gbt.fit(train_df)
+t1 = time.time()
+
+# Prédiction
+pred_gbt = model_gbt.transform(test_df)
+
+# Métriques
+rmse_gbt = evaluator.evaluate(pred_gbt, {evaluator.metricName: "rmse"})
+r2_gbt = evaluator.evaluate(pred_gbt, {evaluator.metricName: "r2"})
+mae_gbt = evaluator.evaluate(pred_gbt, {evaluator.metricName: "mae"})
+
+results["GBTRegressor"] = {"RMSE": rmse_gbt, "R²": r2_gbt, "MAE": mae_gbt}
+
+print(f"\n{'=' * 64}")
+print("Metrics:")
+print(f"{'=' * 64}")
+print(f"{'Model':<30} | {'RMSE':<10} | {'R²':<10} | {'MAE':<10}")
+for model, result in results.items():
+    print(
+        f"{model:<30} | {result['RMSE']:<10.2f} | {result['R²']:<10.2f} | {result['MAE']:<10.2f}"
+    )
 
 spark.stop()

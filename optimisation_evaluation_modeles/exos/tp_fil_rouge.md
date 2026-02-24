@@ -48,3 +48,58 @@ Le dataset UK Retail contient des colonnes numériques et catégorielles avec de
 5. Utilisez `cross_validate` avec la StratifiedKFold pour récupérer simultanément l'accuracy, le F1-score macro, la précision et le rappel, sur le train **et** le test.
 6. Affichez les résultats et identifiez si les modèles présentent des signes de surapprentissage.
 7. Comparez les performances de chaque modèle dans un tableau de synthèse et identifiez le meilleur candidat.
+
+## Partie 2 — Optimisation des hyperparamètres
+
+## Contexte
+
+Vous avez identifié le meilleur modèle candidat lors de la phase d'évaluation. Il est maintenant temps d'en tirer le maximum en optimisant ses hyperparamètres de manière systématique. Vous comparerez deux approches : la recherche exhaustive par grille (**GridSearchCV**) et la recherche aléatoire (**RandomizedSearchCV**).
+
+## RandomizedSearchCV
+
+### Mise en place
+
+1. Reprenez la pipeline complète (preprocessor + modèle) identifiée à la partie précédente.
+2. Définissez un espace de recherche large pour les hyperparamètres du modèle.
+
+3. Instanciez un `RandomizedSearchCV` avec :
+   - `n_iter=20` (nombre de combinaisons testées)
+   - une `StratifiedKFold` à 5 folds comme stratégie de validation
+   - le F1-score macro comme métrique de scoring
+   - `random_state=42` pour la reproductibilité
+4. Entraînez la recherche sur le jeu d'entraînement et mesurez le temps d'exécution avec `time.time()`.
+
+### Analyse des résultats
+
+5. Affichez les meilleurs hyperparamètres trouvés et le meilleur score de validation croisée associé.
+6. Récupérez le `cv_results_` et visualisez la distribution des scores F1 obtenus selon les différentes combinaisons testées (histogramme ou scatter plot `mean_test_score` vs rang).
+7. Évaluez le meilleur modèle sur le jeu de test et affichez le classification report complet.
+
+## GridSearchCV
+
+### Mise en place
+
+1. À partir des meilleurs hyperparamètres trouvés par RandomizedSearch, **affinez l'espace de recherche** en définissant une grille restreinte autour de ces valeurs.
+
+2. Instanciez un `GridSearchCV` avec la même `StratifiedKFold` à 5 folds et le même scoring F1 macro.
+3. Entraînez la recherche sur le jeu d'entraînement et mesurez le temps d'exécution.
+
+### Analyse des résultats
+
+4. Affichez les meilleurs hyperparamètres trouvés et le meilleur score de validation croisée associé.
+5. Évaluez le meilleur modèle sur le jeu de test et affichez le classification report complet.
+
+## Comparaison RandomSearch vs GridSearch
+
+### Tableau de synthèse
+
+7. Construisez un tableau comparatif récapitulant pour chaque méthode : le meilleur score F1 en validation croisée, le score F1 sur le jeu de test, le nombre de combinaisons testées et le temps d'exécution.
+
+| Méthode            | Meilleur F1 (CV) | F1 test | Combinaisons testées | Temps (s) |
+| ------------------ | ---------------- | ------- | -------------------- | --------- |
+| RandomizedSearchCV |                  |         |                      |           |
+| GridSearchCV       |                  |         |                      |           |
+
+### Visualisation
+
+8. Tracez un graphique en barres côte à côte comparant le F1-score en validation croisée et sur le jeu de test pour les deux méthodes.

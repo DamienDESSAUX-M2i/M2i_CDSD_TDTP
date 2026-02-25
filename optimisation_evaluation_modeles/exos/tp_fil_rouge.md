@@ -103,3 +103,48 @@ Vous avez identifié le meilleur modèle candidat lors de la phase d'évaluation
 ### Visualisation
 
 8. Tracez un graphique en barres côte à côte comparant le F1-score en validation croisée et sur le jeu de test pour les deux méthodes.
+
+## Partie 3 — Courbes d'évaluation avancées
+
+## Contexte
+
+Maintenant que vous avez optimisé votre modèle, il est temps d'analyser sa performance en profondeur à l'aide de courbes d'évaluation avancées. Ces visualisations vous permettront de diagnostiquer le surapprentissage, d'évaluer la capacité discriminante du modèle et d'identifier le seuil de décision optimal.
+
+## Courbe d'apprentissage (Learning Curve)
+
+### Mise en place
+
+1. Reprenez votre meilleur modèle (pipeline complète avec les hyperparamètres optimaux).
+2. Utilisez `learning_curve` de sklearn
+
+### Visualisation
+
+3. Tracez la courbe d'apprentissage avec :
+   - L'axe X : la taille du jeu d'entraînement
+   - L'axe Y : le score F1
+   - Deux courbes : score moyen sur le train (en bleu) et score moyen sur le test (en orange)
+   - Les zones d'ombre représentant l'écart-type (avec `fill_between`)
+
+## Courbe ROC-AUC et seuil de Youden
+
+### Mise en place
+
+1. Entraînez votre meilleur modèle sur l'ensemble du jeu d'entraînement.
+2. Récupérez les probabilités de prédiction sur le jeu de test avec `predict_proba`.
+3. Calculez la courbe ROC avec `roc_curve` de sklearn en utilisant les probabilités de la classe positive.
+4. Calculez l'AUC-ROC avec `roc_auc_score`.
+
+### Calcul du seuil de Youden
+
+5. Calculez l'indice de Youden pour chaque seuil : `J = TPR - FPR` (ou `J = Sensitivity + Specificity - 1`)
+6. Identifiez le seuil qui maximise l'indice de Youden.
+7. Affichez le seuil optimal de Youden et les valeurs de TPR et FPR associées.
+
+### Visualisation de la courbe ROC
+
+8. Tracez la courbe ROC avec :
+   - L'axe X : False Positive Rate (FPR)
+   - L'axe Y : True Positive Rate (TPR)
+   - Une ligne diagonale en pointillés représentant un classifieur aléatoire
+   - L'AUC dans le label de la courbe
+   - Un marqueur rouge au point correspondant au seuil de Youden

@@ -207,7 +207,6 @@ import pickle
 - Stratégie de validation appropriée
 
 ## Remise
-
 - Un notebook Jupyter complet (.ipynb)
 - Un rapport d'analyse (markdown ou PDF)
 - Les modèles sauvegardés (pickle ou joblib)

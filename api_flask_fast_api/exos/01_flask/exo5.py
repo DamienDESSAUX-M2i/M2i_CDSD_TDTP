@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 
 @app.route("/calculate", methods=["POST"])
-def convert_temp():
+def calculate():
     a = request.args.get("a", None)
     b = request.args.get("b", None)
     try:

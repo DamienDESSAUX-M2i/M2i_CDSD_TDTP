@@ -1,7 +1,6 @@
 from datetime import datetime
 
-import uvicorn
-from fastapi import FastAPI
+from fastapi import APIRouter
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
@@ -35,14 +34,12 @@ class Password(BaseModel):
 passwords_db = {}
 next_password_id = 1
 
-app = FastAPI(title="Mon API", version="1.0.0")
+router = APIRouter(prefix="/passwords", tags=["passwords"])
 
 
-@app.post("/passwords", response_model=Password, status_code=201, tags=["passwords"])
+@router.post("/", response_model=Password, status_code=201)
 def create_password(password: Password):
-    """
-    Create new password with automatic validation
-    """
+    """Create new password with automatic validation"""
     global next_password_id
 
     new_password = {
@@ -56,7 +53,3 @@ def create_password(password: Password):
     next_password_id += 1
 
     return new_password
-
-
-if __name__ == "__main__":
-    uvicorn.run(app=app, host="0.0.0.0", port=8000)

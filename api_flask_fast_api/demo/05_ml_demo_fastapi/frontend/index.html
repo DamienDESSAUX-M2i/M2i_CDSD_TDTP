@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Démo FastAPI + PKL + SQLite</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <section class="card">
+      <h1>Démo classification de message</h1>
+      <p class="intro">Saisis ton prénom et un message. L'API classera le texte puis enregistrera le résultat en base SQLite.</p>
+
+      <form id="prediction-form" class="form">
+        <label for="firstName">Prénom</label>
+        <input id="firstName" name="firstName" type="text" placeholder="Exemple : Christophe" required>
+
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="6" placeholder="Exemple : bonjour, j'ai un problème avec ma commande" required></textarea>
+
+        <button type="submit">Envoyer à l'API</button>
+      </form>
+    </section>
+
+    <section id="result-card" class="card hidden">
+      <h2>Résultat</h2>
+      <div id="result"></div>
+    </section>
+
+    <section class="card">
+      <div class="history-header">
+        <h2>Historique enregistré</h2>
+        <button id="refresh-history" type="button" class="secondary">Rafraîchir</button>
+      </div>
+      <div id="history" class="history-empty">Aucune donnée chargée.</div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

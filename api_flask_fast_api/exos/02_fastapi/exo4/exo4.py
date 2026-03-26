@@ -70,7 +70,7 @@ class OrderCreate(BaseModel):
         None,
         title="Identifier",
         description="Order's identifier",
-        example="3d0bdf4a-80ec-469e-8b8d-84e79d4fff72",
+        example=1041.7,
     )
 
     model_config = {
@@ -95,7 +95,7 @@ class OrderCreate(BaseModel):
     }
 
     @model_validator(mode="after")
-    def validate_passwords_match(self):
+    def validate_total(self):
         """Checks if total is correct according to the list of items"""
         total = sum(item.quantity * item.price for item in self.items)
 

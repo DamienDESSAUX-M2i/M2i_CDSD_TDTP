@@ -10,7 +10,7 @@ class EventType(StrEnum):
     OFFLINE = "offline"
 
 
-class Evenement(BaseModel):
+class Event(BaseModel):
     type: EventType = Field(
         ...,
         title="Type d'événement",
@@ -21,7 +21,7 @@ class Evenement(BaseModel):
         ...,
         title="Titre",
         description="Titre de l'événement",
-        example="Titi et Grosminet",
+        example="Présentation FastAPI",
     )
     location: Optional[str] = Field(
         None,
@@ -47,7 +47,7 @@ class Evenement(BaseModel):
         "json_schema_extra": {
             "example": {
                 "type": "online",
-                "title": "Titi et Grosminet",
+                "title": "Présentation FastAPI",
                 "location": "Lille",
                 "url": "https://example.com",
                 "max_participants": 100,
@@ -69,6 +69,6 @@ class Evenement(BaseModel):
 router = APIRouter(prefix="/events", tags=["events"])
 
 
-@router.post("/events/", response_model=Evenement, status_code=201)
-def create_event(event: Evenement):
+@router.post("/events/", response_model=Event, status_code=201)
+def create_event(event: Event):
     return event

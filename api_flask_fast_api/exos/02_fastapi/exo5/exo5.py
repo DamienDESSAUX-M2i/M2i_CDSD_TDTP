@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Generic, TypeVar
 
 from fastapi import APIRouter
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 T = TypeVar("T")
 
@@ -33,8 +33,8 @@ class ApiResponse(BaseModel, Generic[T]):
         example=datetime.now(timezone.utc),
     )
 
-    model_config = {
-        "json_schema_extra": {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "success": True,
                 "data": {},
@@ -42,7 +42,7 @@ class ApiResponse(BaseModel, Generic[T]):
                 "timestamp": datetime.now(timezone.utc),
             }
         }
-    }
+    )
 
 
 class Model1(BaseModel):

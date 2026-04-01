@@ -897,6 +897,14 @@ wheels = [
 ]
 
 [[package]]
+name = "fr-core-news-md"
+version = "3.8.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/00/e1/ff779a8c435bb0663941c22791a895548b35631b39415984338439c86147/fr_core_news_md-3.8.0-py3-none-any.whl", hash = "sha256:8a70d090a54ef77525c3ffa6a6195b9d365f2cf369ae1cd84ede93f3d709079e", size = 45836173, upload-time = "2025-09-30T21:28:58.755Z" },
+]
+
+[[package]]
 name = "fr-core-news-sm"
 version = "3.8.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1755,6 +1763,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "flask" },
     { name = "flask-sqlalchemy" },
+    { name = "fr-core-news-md" },
     { name = "fr-core-news-sm" },
     { name = "gensim" },
     { name = "geopandas" },
@@ -1813,6 +1822,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.135.2" },
     { name = "flask", specifier = ">=3.1.3" },
     { name = "flask-sqlalchemy", specifier = ">=3.1.1" },
+    { name = "fr-core-news-md", specifier = ">=3.8.0" },
     { name = "fr-core-news-sm", specifier = ">=3.8.0" },
     { name = "gensim", specifier = ">=4.4.0" },
     { name = "geopandas", specifier = ">=1.1.2" },

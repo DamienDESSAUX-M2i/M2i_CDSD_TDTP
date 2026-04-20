@@ -48,8 +48,7 @@ class MLModel:
         prediction_class = self.classes[prediction_idx]
         confidence = float(probabilities[prediction_idx])
         probs_dict = {
-            self.classes[i]: float(probabilities[i])
-            for i in range(len(self.classes))
+            self.classes[i]: float(probabilities[i]) for i in range(len(self.classes))
         }
 
         return prediction_class, confidence, probs_dict

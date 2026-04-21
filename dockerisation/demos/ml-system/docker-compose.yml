@@ -1,0 +1,50 @@
+services:
+  database:
+    image: postgres:13-alpine
+    container_name: ml-database
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - ml-networks
+  
+  api:
+    build: 
+      context: ./api
+    container_name: ml-api
+    ports:
+      - "${API_PORT}:5000"
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@database:5432/${DB_NAME}
+      DATA_PATH: /data/wine_quality.csv
+      MODEL_DIR: /models
+    volumes:
+      - ml-models:/models
+      - ./data:/data
+    depends_on: 
+      - database
+    networks:
+      - ml-networks
+
+  dashboard:
+    build: 
+        context: ./dashboard
+    container_name: ml-dashboard
+    ports:
+      - "${DASHBOARD_PORT}:8501"
+    environment:
+      API_URL: http://api:5000
+    depends_on: 
+      - api
+    networks:
+      - ml-networks
+
+volumes:
+  postgres-data:
+  ml-models:
+
+networks:
+  ml-networks:

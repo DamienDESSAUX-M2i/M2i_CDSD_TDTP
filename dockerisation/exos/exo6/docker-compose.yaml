@@ -1,0 +1,54 @@
+name: "dockerisation_exo6"
+
+services:
+  postgres_exo6:
+    image: postgres:13-alpine
+    container_name: postgres_exo6
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - volume_postgres_exo6:/var/lib/postgresql/data
+    networks:
+      - network_postgres_exo6
+  
+  api_exo6:
+    build: 
+      context: ./api
+    container_name: api_exo6
+    ports:
+      - "${API_PORT}:5000"
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres_exo6:5432/${DB_NAME}
+      DATA_PATH: /app/data/wine_quality.csv
+      MODEL_DIR: /app/models
+    volumes:
+      - volume_models_exo6:/app/models
+      - ./data:/app/data
+    depends_on: 
+      - postgres_exo6
+    networks:
+      - network_postgres_exo6
+      - network_api_exo6
+
+  frontend_exo6:
+    build: 
+        context: ./frontend
+    container_name: frontend_exo6
+    ports:
+      - "${FRONTEND_PORT}:8501"
+    environment:
+      API_URL: http://api_exo6:5000
+    depends_on: 
+      - api_exo6
+    networks:
+      - network_api_exo6
+
+volumes:
+  volume_postgres_exo6:
+  volume_models_exo6:
+
+networks:
+  network_postgres_exo6:
+  network_api_exo6:

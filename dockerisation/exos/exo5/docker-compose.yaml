@@ -1,0 +1,66 @@
+name: dockerisation_exo5
+
+services:
+  api_exo5:
+    build: ./api
+    container_name: api_exo5
+    depends_on:
+      - postgres_exo5
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: postgres_exo5
+      POSTGRES_PORT: 5432
+      POSTGRES_DBNAME: ${POSTGRES_DBNAME}
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    networks:
+      - network_api_exo5
+
+  postgres_exo5:
+    image: postgres:latest
+    container_name: postgres_exo5
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DBNAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - volume_postgres_exo5:/var/lib/postgresql
+      - ./postgres:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    networks:
+      - network_api_exo5
+      - network_db_exo5
+
+  pgadmin_exo5:
+    image: dpage/pgadmin4
+    container_name: pgadmin_exo5
+    depends_on:
+      - postgres_exo5
+    env_file:
+      - .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "8080:80"
+    volumes:
+      - volume_pgadmin_exo5:/var/lib/pgadmin
+    restart: unless-stopped
+    networks:
+      - network_db_exo5
+
+volumes:
+  volume_postgres_exo5:
+  volume_pgadmin_exo5:
+
+networks:
+  network_api_exo5:
+  network_db_exo5:

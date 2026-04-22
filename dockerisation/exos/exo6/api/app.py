@@ -144,18 +144,7 @@ def history():
     """
     try:
         # TODO: Récupérer les prédictions avec db.get_recent_predictions(limit=20)
-        if not request.is_json:
-            return jsonify({"success": False, "error": "JSON required"}), 400
-
-        data = request.get_json()
-
-        limit = 10
-        try:
-            limit = int(data.get("limit", "10"))
-        except Exception:
-            pass
-
-        predictions = db.get_recent_predictions(limit=limit)
+        predictions = db.get_recent_predictions(limit=20)
 
         # Formater pour Streamlit (attend: id, quality, timestamp)
         return jsonify(

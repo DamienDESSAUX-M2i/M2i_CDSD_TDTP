@@ -1,0 +1,33 @@
+# Stage 1 : Builder
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+
+COPY requirements.txt .
+
+RUN python -m venv /opt/.venv
+
+ENV PATH="/opt/.venv/bin:$PATH"
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN python -c "from transformers import pipeline; pipeline('sentiment-analysis', model='distilbert-base-uncased-finetuned-sst-2-english');"
+
+# Stage 2 : Runtime
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Récupération de l'environnement virtuel depuis le build
+COPY --from=builder /opt/.venv /opt/.venv
+
+# Récupération du modèle : copier le cache hugging face
+COPY --from=builder /root/.cache/huggingface /root/.cache/huggingface
+
+COPY api_model.py .
+
+ENV PATH="/opt/.venv/bin:$PATH"
+
+EXPOSE 5000
+
+ENTRYPOINT [ "python", "api_model.py" ]

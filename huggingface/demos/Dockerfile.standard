@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY api_model.py .
+
+# Téléchargement du modèle au build
+RUN python -c "from transformers import pipeline; pipeline('sentiment-analysis', model='distilbert-base-uncased-finetuned-sst-2-english');"
+
+EXPOSE 5000
+
+ENTRYPOINT [ "python", "api_model.py" ]

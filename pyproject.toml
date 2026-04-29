@@ -22,6 +22,7 @@ dependencies = [
     "markdown-pdf>=1.10",
     "matplotlib>=3.7.0",
     "minio>=7.2.18",
+    "mlflow[extra]>=3.11.1",
     "nltk>=3.9.3",
     "numpy>=1.24.0",
     "opencv-python>=4.13.0.92",

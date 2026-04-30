@@ -1,12 +1,8 @@
-from pathlib import Path
-
 import mlflow
 from sklearn.datasets import load_wine
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
-
-CURRENT_FOLDER = Path(__file__).parent.resolve()
 
 x, y = load_wine(return_X_y=True)
 
@@ -18,6 +14,10 @@ x_train, x_test, y_train, y_test = train_test_split(
 mlflow.set_experiment("wine-classification")
 
 with mlflow.start_run(run_name="random-forest-baseline"):
+    mlflow.set_tag("model_type", "RandomForest")
+    mlflow.set_tag("dataset", "wine")
+    mlflow.set_tag("version", "1.0.0")
+
     n_estimator = 100
     max_depth = 5
     random_state = 42

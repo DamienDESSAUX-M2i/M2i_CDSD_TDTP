@@ -1,0 +1,9 @@
+scikit-learn
+imblearn
+pandas
+fastapi
+pydantic
+uvicorn
+mlflow[extra]
+pytest
+pytest-cov

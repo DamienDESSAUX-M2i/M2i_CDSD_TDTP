@@ -1,10 +1,3 @@
-# Implémentez un `ModelLoader` qui :
-
-# 1. Charge le modèle depuis le MLflow Model Registry via `mlflow.sklearn.load_model("models:/predictive-maintenance-model/latest")`
-# 2. En cas d'échec du Registry, tente de charger depuis le dernier run disponible de l'expériment `predictive-maintenance`
-# 3. Expose une propriété `is_loaded` (bool) et `version` (str)
-# 4. Expose les méthodes `predict(X)` et `predict_proba(X)`
-
 import logging
 import os
 

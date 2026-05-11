@@ -1,10 +1,10 @@
 import logging
 import os
 from contextlib import asynccontextmanager
-from typing import Optional
+from typing import Annotated
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from model_loader import ModelLoader
 from schemas import HealthResponse, PredictionRequest, PredictionResponse, RiskLevel
 
@@ -48,9 +48,21 @@ def probabilities_to_risk(p: float) -> RiskLevel:
         return RiskLevel.CRITICAL
 
 
-def predict_internal(model_loader: ModelLoader, metrics: Metrics, df: pd.DataFrame):
-    preds = model_loader.predict(df)
-    probas = model_loader.predict_proba(df)[:, 1]
+def get_model_loader(app: FastAPI) -> ModelLoader:
+    return app.state.model_loader
+
+
+def get_metrics(app: FastAPI) -> Metrics:
+    return app.state.metrics
+
+
+ModelDep = Annotated[ModelLoader, Depends(get_model_loader)]
+MetricsDep = Annotated[Metrics, Depends(get_metrics)]
+
+
+def predict_internal(model: ModelLoader, metrics: Metrics, df: pd.DataFrame):
+    preds = model.predict(df)
+    probas = model.predict_proba(df)[:, 1]
 
     risks = [probabilities_to_risk(p) for p in probas]
 
@@ -59,18 +71,14 @@ def predict_internal(model_loader: ModelLoader, metrics: Metrics, df: pd.DataFra
     return preds.tolist(), risks
 
 
-def create_app(
-    model_loader: Optional[ModelLoader] = None, metrics: Optional[Metrics] = None
-) -> FastAPI:
-
-    metrics = metrics or Metrics()
+def create_app() -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         logger.info("Loading model...")
 
-        app.state.model_loader = model_loader or ModelLoader()
-        app.state.metrics = metrics
+        app.state.model_loader = ModelLoader()
+        app.state.metrics = Metrics()
 
         if not app.state.model_loader.is_loaded:
             logger.error("Model failed to load")
@@ -86,27 +94,24 @@ def create_app(
     )
 
     @app.get("/health", response_model=HealthResponse)
-    def health():
-        ml = app.state.model_loader
-        status = "healthy" if ml.is_loaded else "unhealthy"
+    def health(model: ModelDep):
+        status = "healthy" if model.is_loaded else "unhealthy"
 
         return {"status": status, "model": REGISTERED_MODEL_NAME, "stage": MODEL_STAGE}
 
     @app.get("/metrics")
-    def get_metrics():
-        return app.state.metrics.to_dict()
+    def metrics(metrics: MetricsDep):
+        return metrics.to_dict()
 
     @app.post("/predict", response_model=PredictionResponse)
-    def predict(request: PredictionRequest):
-        ml = app.state.model_loader
-
-        if not ml.is_loaded:
+    def predict(request: PredictionRequest, model: ModelDep, metrics: MetricsDep):
+        if not model.is_loaded:
             raise HTTPException(status_code=503, detail="Model not loaded")
 
         try:
             df = pd.DataFrame([r.model_dump() for r in request.instances])
 
-            preds, risks = predict_internal(ml, app.state.metrics, df)
+            preds, risks = predict_internal(model, metrics, df)
 
             return {"predictions": preds, "risks_levels": risks}
 
@@ -115,10 +120,8 @@ def create_app(
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.post("/predict/batch", response_model=PredictionResponse)
-    def predict_batch(request: PredictionRequest):
-        ml = app.state.model_loader
-
-        if not ml.is_loaded:
+    def predict_batch(request: PredictionRequest, model: ModelDep, metrics: MetricsDep):
+        if not model.is_loaded:
             raise HTTPException(status_code=503, detail="Model not loaded")
 
         if len(request.instances) > 100:
@@ -127,7 +130,7 @@ def create_app(
         try:
             df = pd.DataFrame([r.model_dump() for r in request.instances])
 
-            preds, risks = predict_internal(ml, app.state.metrics, df)
+            preds, risks = predict_internal(model, metrics, df)
 
             return {"predictions": preds, "risks_levels": risks}
 

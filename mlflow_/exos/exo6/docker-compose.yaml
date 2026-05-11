@@ -1,0 +1,67 @@
+name: "predictive-maintenance"
+
+services:
+  mlflow:
+    container_name: mlflow
+    restart: "always"
+    image: ghcr.io/mlflow/mlflow:v2.13.0
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-data:/mlflow
+    networks:
+      - mlops-network
+    command: >
+      mlflow server
+      --backend-store-uri sqlite:///mlflow/mlflow.db
+      --default-artifact-root /mlflow/artifacts
+      --host 0.0.0.0
+      --port 5000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  trainer:
+    container_name: trainer
+    restart: "no"
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    build: .
+    environment:
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - EXPERIMENT_NAME=${EXPERIMENT_NAME}
+      - RUN_NAME=${RUN_NAME}
+      - REGISTERED_MODEL_NAME=${REGISTERED_MODEL_NAME}
+      - MODEL_STAGE=${MODEL_STAGE}
+    networks:
+      - mlops-network
+    command: ["python", "src/train.py"]
+
+  api:
+    container_name: api
+    restart: "always"
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    build: .
+    environment:
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
+      - EXPERIMENT_NAME=${EXPERIMENT_NAME}
+      - RUN_NAME=${RUN_NAME}
+      - REGISTERED_MODEL_NAME=${REGISTERED_MODEL_NAME}
+      - MODEL_STAGE=${MODEL_STAGE}
+    ports:
+      - "8000:8000"
+    networks:
+      - mlops-network
+
+volumes:
+  mlflow-data:
+
+networks:
+  mlops-network:
+    driver: bridge

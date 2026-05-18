@@ -1,0 +1,60 @@
+services:
+
+  kafka:
+    image: redpandadata/redpanda:latest
+    container_name: kafka
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp
+      - "1"
+      - --memory
+      - 512M
+      - --reserve-memory
+      - 0M
+      - --node-id
+      - "0"
+      - --check=false
+      - --kafka-addr
+      - PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr
+      - PLAINTEXT://kafka:9092
+    ports:
+      - "9092:9092"
+
+  generator:
+    build: ./generator
+    container_name: data-generator
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      TOPIC_NAME: raw-data
+
+  analyzer:
+    build: ./analyzer
+    container_name: data-analyzer
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      TOPIC_NAME: raw-data
+      METRICS_FILE: /metrics/metrics.json
+    volumes:
+      - metrics-data:/metrics
+
+  dashboard:
+    build: ./dashboard
+    container_name: data-dashboard
+    ports:
+      - "8501:8501"
+    depends_on:
+      - analyzer
+    environment:
+      METRICS_FILE: /metrics/metrics.json
+    volumes:
+      - metrics-data:/metrics
+
+volumes:
+  metrics-data:

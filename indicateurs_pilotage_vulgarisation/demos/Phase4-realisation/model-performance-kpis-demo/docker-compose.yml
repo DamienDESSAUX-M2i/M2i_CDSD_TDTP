@@ -1,0 +1,24 @@
+services:
+
+  model-simulator:
+    build: ./model-simulator
+    container_name: model-simulator
+    environment:
+      METRICS_FILE: /metrics/model_metrics.json
+    volumes:
+      - model-metrics:/metrics
+
+  dashboard:
+    build: ./dashboard
+    container_name: model-kpi-dashboard
+    ports:
+      - "8502:8501"
+    environment:
+      METRICS_FILE: /metrics/model_metrics.json
+    volumes:
+      - model-metrics:/metrics
+    depends_on:
+      - model-simulator
+
+volumes:
+  model-metrics:

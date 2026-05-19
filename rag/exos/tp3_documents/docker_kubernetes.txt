@@ -1,0 +1,170 @@
+# Docker et Kubernetes : Guide Pratique
+
+## Docker
+
+Docker est une plateforme de conteneurisation qui permet d'empaqueter des applications avec toutes leurs dépendances.
+
+### Concepts Fondamentaux
+
+**Image** : Template immuable contenant l'application et ses dépendances.
+- Créée à partir d'un Dockerfile
+- Stockée dans un registry (Docker Hub, etc.)
+- Versionnable avec des tags
+
+**Container** : Instance en cours d'exécution d'une image.
+- Isolé du système hôte
+- Léger (partage le kernel)
+- Éphémère par défaut
+
+**Volume** : Stockage persistant pour les données.
+- Survit à la suppression du conteneur
+- Peut être partagé entre conteneurs
+
+**Network** : Réseau virtuel pour la communication entre conteneurs.
+
+### Commandes Docker Essentielles
+
+```bash
+# Images
+docker build -t mon-app:v1 .        # Construire une image
+docker images                        # Lister les images
+docker pull nginx:latest             # Télécharger une image
+docker push mon-app:v1               # Pousser vers registry
+
+# Conteneurs
+docker run -d -p 8080:80 nginx       # Lancer un conteneur
+docker ps                            # Lister conteneurs actifs
+docker ps -a                         # Tous les conteneurs
+docker stop <container-id>           # Arrêter
+docker rm <container-id>             # Supprimer
+docker logs <container-id>           # Voir les logs
+docker exec -it <container-id> bash  # Shell interactif
+
+# Volumes
+docker volume create mon-volume
+docker run -v mon-volume:/app/data nginx
+```
+
+### Dockerfile
+
+Structure type d'un Dockerfile :
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD ["python", "app.py"]
+```
+
+### Docker Compose
+
+Orchestration multi-conteneurs avec un fichier YAML :
+```yaml
+version: '3.8'
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+```
+
+## Kubernetes
+
+Kubernetes (K8s) est un orchestrateur de conteneurs open-source pour automatiser le déploiement,
+la mise à l'échelle et la gestion d'applications conteneurisées.
+
+### Architecture
+
+**Control Plane** (Plan de contrôle) :
+- **API Server** : point d'entrée pour toutes les opérations
+- **etcd** : base de données clé-valeur pour l'état du cluster
+- **Scheduler** : assigne les pods aux nodes
+- **Controller Manager** : gère les contrôleurs (réplication, etc.)
+
+**Nodes** (Nœuds de travail) :
+- **kubelet** : agent sur chaque node
+- **kube-proxy** : gestion du réseau
+- **Container Runtime** : Docker, containerd, CRI-O
+
+### Objets Kubernetes
+
+**Pod** : Plus petite unité déployable, contient un ou plusieurs conteneurs.
+
+**Deployment** : Gère le déploiement et la mise à jour des pods.
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mon-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mon-app
+  template:
+    metadata:
+      labels:
+        app: mon-app
+    spec:
+      containers:
+      - name: app
+        image: mon-app:v1
+        ports:
+        - containerPort: 8000
+```
+
+**Service** : Expose les pods sur le réseau.
+- ClusterIP : interne au cluster
+- NodePort : exposé sur un port de chaque node
+- LoadBalancer : avec load balancer externe
+
+**ConfigMap** : Configuration non sensible.
+
+**Secret** : Données sensibles (mots de passe, tokens).
+
+**Ingress** : Gestion du trafic HTTP/HTTPS entrant.
+
+### Commandes kubectl
+
+```bash
+# Déploiement
+kubectl apply -f deployment.yaml
+kubectl get deployments
+kubectl get pods
+kubectl describe pod <pod-name>
+
+# Scaling
+kubectl scale deployment mon-app --replicas=5
+
+# Mise à jour
+kubectl set image deployment/mon-app app=mon-app:v2
+kubectl rollout status deployment/mon-app
+kubectl rollout undo deployment/mon-app
+
+# Logs et debug
+kubectl logs <pod-name>
+kubectl exec -it <pod-name> -- /bin/bash
+
+# Services
+kubectl get services
+kubectl port-forward service/mon-app 8080:80
+```
+
+### Bonnes Pratiques
+
+1. **Resource Limits** : définir requests et limits pour CPU/mémoire
+2. **Health Checks** : liveness et readiness probes
+3. **Rolling Updates** : mises à jour progressives sans downtime
+4. **Namespaces** : isolation logique des ressources
+5. **RBAC** : contrôle d'accès basé sur les rôles
+6. **Monitoring** : Prometheus, Grafana pour la supervision

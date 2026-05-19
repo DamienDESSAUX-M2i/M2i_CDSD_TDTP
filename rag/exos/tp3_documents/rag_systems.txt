@@ -1,0 +1,96 @@
+# RAG : Retrieval-Augmented Generation
+
+RAG (Retrieval-Augmented Generation) est une architecture qui combine la recherche d'information (retrieval)
+avec la génération de texte par des modèles de langage (generation).
+
+## Principe de Fonctionnement
+
+Un système RAG fonctionne en plusieurs étapes :
+
+1. **Indexation** (offline) :
+   - Découpage des documents en chunks
+   - Génération d'embeddings vectoriels
+   - Stockage dans une base de données vectorielle
+
+2. **Recherche** (online) :
+   - Conversion de la question en embedding
+   - Recherche des documents les plus pertinents
+   - Récupération du contexte
+
+3. **Génération** (online) :
+   - Construction d'un prompt avec le contexte
+   - Génération de la réponse par le LLM
+   - Post-traitement et validation
+
+## Composants Clés
+
+### Chunking (Découpage)
+
+Le découpage des documents est crucial pour la performance :
+- **Taille des chunks** : généralement 500-1000 tokens
+- **Overlap** : chevauchement de 10-20% pour la continuité
+- **Méthodes** : par caractères, par phrases, par paragraphes, sémantique
+
+### Embeddings
+
+Les modèles d'embedding transforment le texte en vecteurs :
+- **OpenAI Embeddings** : text-embedding-3-small/large
+- **Open Source** : all-MiniLM-L6-v2, BGE, E5
+- **Multilingues** : multilingual-e5-large
+
+### Bases Vectorielles
+
+Stockage et recherche efficace des embeddings :
+- **ChromaDB** : simple et embarquée
+- **Pinecone** : cloud, scalable
+- **Weaviate** : open source avec fonctionnalités avancées
+- **FAISS** : bibliothèque Facebook, très rapide
+- **Qdrant** : haute performance avec filtrage
+
+### LLMs (Modèles de Langage)
+
+Génération de réponses contextualisées :
+- **Propriétaires** : GPT-4, Claude, Gemini
+- **Open Source** : Llama 2/3, Mistral, Mixtral
+- **Spécialisés** : modèles fine-tunés pour domaines spécifiques
+
+## Techniques Avancées
+
+### Hybrid Search
+
+Combinaison de recherche vectorielle et keyword-based (BM25) pour améliorer la pertinence.
+
+### Reranking
+
+Utilisation d'un modèle de reranking (ex: cross-encoders) pour affiner les résultats de recherche.
+
+### Query Transformation
+
+Amélioration des requêtes :
+- **HyDE** : génération de documents hypothétiques
+- **Multi-Query** : génération de plusieurs variations de la question
+- **Step-back** : questions plus générales pour contexte additionnel
+
+### Metadata Filtering
+
+Utilisation de métadonnées pour filtrer les résultats (date, catégorie, source, etc.).
+
+## Métriques d'Évaluation
+
+### Retrieval
+- **Recall@K** : proportion de documents pertinents récupérés
+- **Precision@K** : proportion de documents récupérés qui sont pertinents
+- **MRR (Mean Reciprocal Rank)** : rang moyen du premier document pertinent
+
+### Generation
+- **Faithfulness** : fidélité au contexte récupéré
+- **Answer Relevancy** : pertinence de la réponse à la question
+- **Context Relevancy** : pertinence du contexte récupéré
+
+## Cas d'Usage
+
+- **Documentation technique** : réponses sur documentation produit
+- **Support client** : chatbots avec base de connaissances
+- **Recherche juridique** : recherche dans corpus de lois
+- **Médical** : aide au diagnostic basée sur littérature médicale
+- **Éducation** : assistants pédagogiques personnalisés

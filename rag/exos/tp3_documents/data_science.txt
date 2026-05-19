@@ -1,0 +1,146 @@
+# Data Science avec Python
+
+La Data Science combine statistiques, programmation et expertise métier pour extraire des insights des données.
+
+## Bibliothèques Essentielles
+
+### NumPy
+
+Calcul numérique avec des arrays multidimensionnels :
+```python
+import numpy as np
+arr = np.array([1, 2, 3, 4, 5])
+matrix = np.array([[1, 2], [3, 4]])
+```
+
+Opérations : broadcasting, slicing, aggregations, algèbre linéaire.
+
+### Pandas
+
+Manipulation et analyse de données tabulaires :
+```python
+import pandas as pd
+df = pd.read_csv('data.csv')
+df.head()
+df.describe()
+df.groupby('category')['value'].mean()
+```
+
+Structures : Series (1D), DataFrame (2D).
+Opérations : filtrage, groupby, merge, pivot, time series.
+
+### Matplotlib et Seaborn
+
+Visualisation de données :
+```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Matplotlib
+plt.plot(x, y)
+plt.scatter(x, y)
+plt.hist(data)
+
+# Seaborn
+sns.boxplot(x='category', y='value', data=df)
+sns.heatmap(correlation_matrix)
+```
+
+### Scikit-learn
+
+Machine Learning :
+```python
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+model = LinearRegression()
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+```
+
+## Workflow Data Science
+
+### 1. Acquisition des Données
+
+Sources : CSV, bases de données, APIs, web scraping.
+```python
+df = pd.read_csv('data.csv')
+# ou
+import requests
+response = requests.get('https://api.example.com/data')
+```
+
+### 2. Exploration (EDA)
+
+Comprendre les données :
+- Dimensions : shape, dtypes
+- Statistiques : describe(), info()
+- Valeurs manquantes : isnull().sum()
+- Distributions : histogrammes, boxplots
+- Corrélations : corr(), heatmap
+
+### 3. Nettoyage
+
+Préparer les données :
+```python
+# Valeurs manquantes
+df.dropna()  # supprimer
+df.fillna(df.mean())  # remplir
+
+# Doublons
+df.drop_duplicates()
+
+# Types
+df['date'] = pd.to_datetime(df['date'])
+
+# Outliers
+z_scores = (df['value'] - df['value'].mean()) / df['value'].std()
+df = df[abs(z_scores) < 3]
+```
+
+### 4. Feature Engineering
+
+Créer de nouvelles features :
+```python
+# Encodage catégoriel
+df = pd.get_dummies(df, columns=['category'])
+
+# Normalisation
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+df_scaled = scaler.fit_transform(df)
+
+# Binning
+df['age_group'] = pd.cut(df['age'], bins=[0, 18, 35, 60, 100])
+```
+
+### 5. Modélisation
+
+Entraîner et évaluer des modèles :
+```python
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+model = RandomForestClassifier(n_estimators=100)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+print(accuracy_score(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+```
+
+### 6. Visualisation et Communication
+
+Présenter les résultats :
+- Graphiques interactifs : Plotly, Bokeh
+- Dashboards : Streamlit, Dash
+- Rapports : Jupyter Notebooks
+
+## Outils Avancés
+
+**Dask** : Pandas à grande échelle (parallélisation)
+**PySpark** : Big Data avec Apache Spark
+**MLflow** : Suivi d'expériences ML
+**Great Expectations** : Validation de qualité des données

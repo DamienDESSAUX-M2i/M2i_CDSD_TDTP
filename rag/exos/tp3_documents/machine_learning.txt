@@ -1,0 +1,49 @@
+# Introduction au Machine Learning
+
+Le Machine Learning (apprentissage automatique) est une branche de l'intelligence artificielle qui permet
+aux ordinateurs d'apprendre à partir de données sans être explicitement programmés pour chaque tâche.
+
+## Types d'Apprentissage
+
+### Apprentissage Supervisé
+
+Dans l'apprentissage supervisé, le modèle est entraîné sur des données étiquetées. Les algorithmes courants incluent :
+- **Régression Linéaire** : prédiction de valeurs continues
+- **Régression Logistique** : classification binaire
+- **Arbres de Décision** : classification et régression
+- **Random Forest** : ensemble d'arbres de décision
+- **SVM (Support Vector Machines)** : classification avec marge maximale
+- **Réseaux de Neurones** : modèles inspirés du cerveau humain
+
+### Apprentissage Non Supervisé
+
+L'apprentissage non supervisé travaille avec des données non étiquetées :
+- **K-Means** : clustering par centres
+- **DBSCAN** : clustering basé sur la densité
+- **PCA (Analyse en Composantes Principales)** : réduction de dimensionnalité
+- **Autoencoders** : apprentissage de représentations
+
+### Apprentissage par Renforcement
+
+Un agent apprend à prendre des décisions en interagissant avec un environnement et en recevant des récompenses.
+Algorithmes populaires : Q-Learning, Deep Q-Networks (DQN), Policy Gradients.
+
+## Bibliothèques Python
+
+Les principales bibliothèques Python pour le ML sont :
+- **scikit-learn** : algorithmes classiques de ML
+- **TensorFlow** : deep learning développé par Google
+- **PyTorch** : deep learning développé par Facebook
+- **Keras** : API haut niveau pour les réseaux de neurones
+- **XGBoost** : gradient boosting optimisé
+
+## Workflow Typique
+
+1. **Collecte de données** : rassembler les données pertinentes
+2. **Exploration (EDA)** : analyser et visualiser les données
+3. **Prétraitement** : nettoyage, normalisation, feature engineering
+4. **Séparation** : train/validation/test sets
+5. **Entraînement** : ajuster le modèle sur les données d'entraînement
+6. **Évaluation** : mesurer les performances sur les données de test
+7. **Optimisation** : hyperparamètres, architecture
+8. **Déploiement** : mise en production du modèle

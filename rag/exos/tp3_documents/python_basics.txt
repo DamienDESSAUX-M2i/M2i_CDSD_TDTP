@@ -1,0 +1,40 @@
+# Python : Les Fondamentaux
+
+Python est un langage de programmation interprété, orienté objet et de haut niveau créé par Guido van Rossum en 1991.
+Il se distingue par sa syntaxe claire et lisible qui favorise la productivité des développeurs.
+
+## Types de Données
+
+Python propose plusieurs types de données natifs :
+- **Numériques** : int (entiers), float (nombres à virgule), complex (nombres complexes)
+- **Séquences** : str (chaînes), list (listes), tuple (tuples immuables)
+- **Mappings** : dict (dictionnaires)
+- **Ensembles** : set (ensembles), frozenset (ensembles immuables)
+- **Booléens** : bool (True/False)
+
+## Structures de Contrôle
+
+Les structures de contrôle en Python incluent :
+- **Conditionnelles** : if, elif, else
+- **Boucles** : for (itération), while (condition)
+- **Gestion d'erreurs** : try, except, finally
+
+## Fonctions
+
+Les fonctions en Python sont définies avec le mot-clé `def`. Elles peuvent accepter des arguments positionnels,
+des arguments nommés, des arguments par défaut, et même un nombre variable d'arguments (*args, **kwargs).
+
+Exemple :
+```python
+def calculer_moyenne(*nombres):
+    return sum(nombres) / len(nombres) if nombres else 0
+```
+
+## Modules et Packages
+
+Python dispose d'un vaste écosystème de bibliothèques. La bibliothèque standard inclut des modules pour :
+- Manipulation de fichiers (os, pathlib)
+- Calculs mathématiques (math, statistics)
+- Dates et heures (datetime)
+- Expressions régulières (re)
+- Requêtes HTTP (urllib, http)

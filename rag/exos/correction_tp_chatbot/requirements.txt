@@ -1,0 +1,25 @@
+# Core dependencies
+langchain==0.1.0
+langchain-community==0.0.13
+langchain-mistralai==0.0.5
+
+# Mistral AI
+mistralai==0.0.11
+
+# Vector store
+chromadb==0.4.22
+
+# Embeddings
+sentence-transformers==2.3.1
+
+# API
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+
+# Data processing
+numpy==1.26.3
+pandas==2.1.4
+
+# Utilities
+python-dotenv==1.0.0
